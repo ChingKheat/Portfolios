@@ -42,7 +42,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/banana-dashboard",
-      "visible": true
+      "visible": false
     },
     {
       "id": "SmashDash_CourtBooking",
@@ -269,8 +269,6 @@ window.PROJECTS_DATA = {
   "showcase": {
     "repository": "ChingKheat/portfolios",
     "branch": "main",
-    "displayedProjectIds": [
-      "banana-dashboard"
-    ]
+    "displayedProjectIds": []
   }
 };
