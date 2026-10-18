@@ -114,12 +114,12 @@
     loadProjectsData();
   }
 
-  // Get active visible projects (subset chosen by curator or all)
+  // Get active visible projects (defaults to p.visible !== false for all visitors)
   function getVisibleProjects() {
-    if (!state.visibleProjectIds || state.visibleProjectIds.length === 0) {
-      return state.projects;
+    if (state.visibleProjectIds && state.visibleProjectIds.length > 0) {
+      return state.projects.filter(p => state.visibleProjectIds.includes(p.id));
     }
-    return state.projects.filter(p => state.visibleProjectIds.includes(p.id));
+    return state.projects.filter(p => p.visible !== false);
   }
 
   function applyLoadedData(data) {
@@ -639,7 +639,7 @@
 
     const visibleIds = state.visibleProjectIds 
       ? new Set(state.visibleProjectIds) 
-      : new Set(state.projects.map(p => p.id));
+      : new Set(state.projects.filter(p => p.visible !== false).map(p => p.id));
 
     DOM.curateListContainer.innerHTML = state.projects.map(project => {
       const isChecked = visibleIds.has(project.id);
@@ -700,7 +700,7 @@
     document.body.style.overflow = '';
   }
 
-  function saveCuratedSelection() {
+  async function saveCuratedSelection() {
     if (!DOM.curateListContainer) return;
     const checkedBoxes = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
     const checkedIds = checkedBoxes.map(cb => cb.dataset.id);
@@ -710,12 +710,33 @@
       return;
     }
 
-    if (checkedIds.length === state.projects.length) {
-      state.visibleProjectIds = null;
-      localStorage.removeItem('hub_visible_projects');
-    } else {
-      state.visibleProjectIds = checkedIds;
-      localStorage.setItem('hub_visible_projects', JSON.stringify(checkedIds));
+    // Update in-memory visible flags
+    state.projects.forEach(p => {
+      p.visible = checkedIds.includes(p.id);
+    });
+    state.visibleProjectIds = checkedIds;
+
+    const updatedData = {
+      hub: state.hubInfo,
+      projects: state.projects,
+      milestones: state.milestones
+    };
+
+    let serverSaved = false;
+
+    // 1. Try sending to local server.py endpoint
+    try {
+      const response = await fetch('/api/save-selection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visibleIds: checkedIds })
+      });
+      if (response.ok) {
+        const resJson = await response.json();
+        if (resJson.success) serverSaved = true;
+      }
+    } catch (e) {
+      // Local server not running or static host
     }
 
     // Refresh UI
@@ -726,7 +747,27 @@
     filterAndRenderProjects();
 
     closeCurateModal();
-    showToast(`Showcase updated: showing ${checkedIds.length} projects`);
+
+    if (serverSaved) {
+      showToast(`✅ Published! Next visitors will see these ${checkedIds.length} projects.`);
+    } else {
+      // If server is not active, trigger 1-click update/download of projects-data.js
+      downloadUpdatedDataFile(updatedData);
+      showToast(`✅ Saved! Updated projects-data.js downloaded to data/ folder.`);
+    }
+  }
+
+  function downloadUpdatedDataFile(data) {
+    const fileContent = "/**\n * Project Catalog Data Source\n * Automatically updated by Project Curator.\n */\nwindow.PROJECTS_DATA = " + JSON.stringify(data, null, 2) + ";\n";
+    const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'projects-data.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function copyCuratedShareLink() {
@@ -750,6 +791,7 @@
   }
 
   function resetToAllProjects() {
+    state.projects.forEach(p => p.visible = true);
     state.visibleProjectIds = null;
     localStorage.removeItem('hub_visible_projects');
 
@@ -757,6 +799,13 @@
     const newUrl = new URL(window.location);
     newUrl.searchParams.delete('show');
     window.history.replaceState({}, '', newUrl);
+
+    // Also auto-save reset if server is running
+    fetch('/api/save-selection', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visibleIds: state.projects.map(p => p.id) })
+    }).catch(() => {});
 
     updateCurateStatusUI();
     renderKPIStats();

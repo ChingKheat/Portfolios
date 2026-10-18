@@ -1,6 +1,6 @@
 /**
  * Project Catalog Data Source
- * Cleanly decoupled from UI logic. Works on both file:// and http(s):// protocols.
+ * Automatically updated by Project Curator.
  */
 window.PROJECTS_DATA = {
   "hub": {
@@ -34,9 +34,15 @@ window.PROJECTS_DATA = {
         "Clean semantic HTML5 structure with custom CSS design tokens",
         "Interactive KPI metric indicators and status chips"
       ],
-      "techStack": ["HTML5", "CSS3", "JavaScript", "Responsive Design"],
+      "techStack": [
+        "HTML5",
+        "CSS3",
+        "JavaScript",
+        "Responsive Design"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/banana-dashboard"
+      "githubUrl": "https://github.com/ChingKheat/banana-dashboard",
+      "visible": true
     },
     {
       "id": "SmashDash_CourtBooking",
@@ -57,9 +63,16 @@ window.PROJECTS_DATA = {
         "Multi-venue support with location-based filtering",
         "Mobile-first gesture navigation and smooth transitions"
       ],
-      "techStack": ["Dart", "Flutter", "Mobile UI", "REST API", "State Management"],
+      "techStack": [
+        "Dart",
+        "Flutter",
+        "Mobile UI",
+        "REST API",
+        "State Management"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/SmashDash_CourtBooking"
+      "githubUrl": "https://github.com/ChingKheat/SmashDash_CourtBooking",
+      "visible": true
     },
     {
       "id": "Malaysia-Travel-Apps",
@@ -80,9 +93,15 @@ window.PROJECTS_DATA = {
         "Bookmark and offline favorites persistence",
         "Modern card-based discovery feed with high-res visual assets"
       ],
-      "techStack": ["Dart", "Flutter", "Location Services", "Mobile UI"],
+      "techStack": [
+        "Dart",
+        "Flutter",
+        "Location Services",
+        "Mobile UI"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/Malaysia-Travel-Apps"
+      "githubUrl": "https://github.com/ChingKheat/Malaysia-Travel-Apps",
+      "visible": true
     },
     {
       "id": "nuxt-ai-chatbot",
@@ -103,9 +122,16 @@ window.PROJECTS_DATA = {
         "Thread persistence with editable conversation titles",
         "Reactive state management and clean component architecture"
       ],
-      "techStack": ["Vue.js", "Nuxt", "JavaScript", "AI Integration", "CSS3"],
+      "techStack": [
+        "Vue.js",
+        "Nuxt",
+        "JavaScript",
+        "AI Integration",
+        "CSS3"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/nuxt-ai-chatbot"
+      "githubUrl": "https://github.com/ChingKheat/nuxt-ai-chatbot",
+      "visible": true
     },
     {
       "id": "portfolio",
@@ -125,9 +151,14 @@ window.PROJECTS_DATA = {
         "Static page rendering pipeline",
         "Extensible template system with custom theme hooks"
       ],
-      "techStack": ["Python", "Automation", "Static Site Generation"],
+      "techStack": [
+        "Python",
+        "Automation",
+        "Static Site Generation"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/portfolio"
+      "githubUrl": "https://github.com/ChingKheat/portfolio",
+      "visible": true
     },
     {
       "id": "Java-OOPT",
@@ -147,9 +178,15 @@ window.PROJECTS_DATA = {
         "Robust encapsulation and interface-driven design",
         "Comprehensive unit test coverage verifying business logic invariants"
       ],
-      "techStack": ["Java", "OOP", "Design Patterns", "Software Architecture"],
+      "techStack": [
+        "Java",
+        "OOP",
+        "Design Patterns",
+        "Software Architecture"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/Java-OOPT"
+      "githubUrl": "https://github.com/ChingKheat/Java-OOPT",
+      "visible": true
     },
     {
       "id": "SmashDash",
@@ -169,9 +206,14 @@ window.PROJECTS_DATA = {
         "Court allocation and match scheduling engine",
         "Modular service architecture ready for cloud scaling"
       ],
-      "techStack": ["Backend Architecture", "API Design", "Database Modeling"],
+      "techStack": [
+        "Backend Architecture",
+        "API Design",
+        "Database Modeling"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/SmashDash"
+      "githubUrl": "https://github.com/ChingKheat/SmashDash",
+      "visible": true
     },
     {
       "id": "CDTest",
@@ -191,9 +233,15 @@ window.PROJECTS_DATA = {
         "Branch protection and pull request validation gates",
         "Environment smoke testing and deployment alerts"
       ],
-      "techStack": ["CI/CD", "DevOps", "GitHub Actions", "Automation"],
+      "techStack": [
+        "CI/CD",
+        "DevOps",
+        "GitHub Actions",
+        "Automation"
+      ],
       "demoUrl": "",
-      "githubUrl": "https://github.com/ChingKheat/CDTest"
+      "githubUrl": "https://github.com/ChingKheat/CDTest",
+      "visible": true
     }
   ],
   "milestones": [
@@ -218,5 +266,4 @@ window.PROJECTS_DATA = {
       "desc": "Expanded regional travel guides across 13 Malaysian states with offline favorites."
     }
   ]
-}
-;
+};
