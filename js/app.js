@@ -1,17 +1,34 @@
 /**
  * Project Showcase Hub - Dashboard Engine
  * Dynamically loads project data from an external JSON file (no hardcoded data).
- * Designed for public visitors, clients, and teams to explore projects with zero user setup.
+ * Features an interactive Project Curator to select and share custom project showcases.
  */
 
 (function () {
   'use strict';
+
+  // Helper to read initial visible projects from URL or localStorage
+  function getInitialVisibleProjects() {
+    const urlParam = new URLSearchParams(window.location.search).get('show');
+    if (urlParam) {
+      return urlParam.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    const saved = localStorage.getItem('hub_visible_projects');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return null; // null means all projects are visible
+  }
 
   // Application State
   const state = {
     dataSource: new URLSearchParams(window.location.search).get('data') || 'data/projects.json',
     hubInfo: {},
     projects: [],
+    visibleProjectIds: getInitialVisibleProjects(),
     filteredProjects: [],
     milestones: [],
     activeCategory: 'All',
@@ -71,7 +88,23 @@
     hubSubtitle: document.getElementById('hubSubtitle'),
     hubDescription: document.getElementById('hubDescription'),
     hubBadge: document.getElementById('hubBadge'),
-    sidebarProjectCount: document.getElementById('sidebarProjectCount')
+    sidebarProjectCount: document.getElementById('sidebarProjectCount'),
+    // Curate modal elements
+    openCurateModalBtn: document.getElementById('openCurateModalBtn'),
+    curateCountBadge: document.getElementById('curateCountBadge'),
+    curatedAlertBar: document.getElementById('curatedAlertBar'),
+    curatedCountText: document.getElementById('curatedCountText'),
+    editCuratedBtn: document.getElementById('editCuratedBtn'),
+    resetCuratedBtn: document.getElementById('resetCuratedBtn'),
+    curateModal: document.getElementById('curateModal'),
+    curateModalCloseBtn: document.getElementById('curateModalCloseBtn'),
+    curateListContainer: document.getElementById('curateListContainer'),
+    curateSelectedCount: document.getElementById('curateSelectedCount'),
+    curateSelectAllBtn: document.getElementById('curateSelectAllBtn'),
+    curateDeselectAllBtn: document.getElementById('curateDeselectAllBtn'),
+    curateOnlyFeaturedBtn: document.getElementById('curateOnlyFeaturedBtn'),
+    copyShareCuratedLinkBtn: document.getElementById('copyShareCuratedLinkBtn'),
+    saveCuratedBtn: document.getElementById('saveCuratedBtn')
   };
 
   // Initializer
@@ -81,18 +114,35 @@
     loadProjectsData();
   }
 
+  // Get active visible projects (subset chosen by curator or all)
+  function getVisibleProjects() {
+    if (!state.visibleProjectIds || state.visibleProjectIds.length === 0) {
+      return state.projects;
+    }
+    return state.projects.filter(p => state.visibleProjectIds.includes(p.id));
+  }
+
   function applyLoadedData(data) {
     state.hubInfo = data.hub || {};
     state.projects = data.projects || [];
     state.milestones = data.milestones || [];
 
+    // Validate visibleProjectIds against loaded projects
+    if (state.visibleProjectIds) {
+      const validIds = state.visibleProjectIds.filter(id => state.projects.some(p => p.id === id));
+      state.visibleProjectIds = validIds.length > 0 ? validIds : null;
+    }
+
     // Update Hub Title & Details
     renderHubInfo();
+
+    // Update Curate Badge & Alert Bar
+    updateCurateStatusUI();
 
     // Render Dashboard Metrics
     renderKPIStats();
 
-    // Build Dynamic Category Filter Tabs based on loaded projects
+    // Build Dynamic Category Filter Tabs based on visible projects
     buildCategoryTabs();
 
     // Render Analytics & Milestones
@@ -133,7 +183,7 @@
       }
     }
 
-    // 2. If window.PROJECTS_DATA is loaded via <script src="data/projects-data.js">, use it instantly (works 100% on file:// protocol!)
+    // 2. If window.PROJECTS_DATA is loaded via <script src="data/projects-data.js">, use it directly (works on file:// protocol!)
     if (typeof window !== 'undefined' && window.PROJECTS_DATA && window.PROJECTS_DATA.projects) {
       applyLoadedData(window.PROJECTS_DATA);
       state.isLoading = false;
@@ -214,7 +264,6 @@
       DOM.hubBadge.textContent = state.hubInfo.badge;
     }
 
-    // Update contact email/links if present in hub configuration
     if (state.hubInfo.contact) {
       const ghLink = document.getElementById('hubGithubLink');
       if (ghLink && state.hubInfo.contact.github) {
@@ -223,18 +272,38 @@
     }
   }
 
-  // Render KPI Metrics dynamically
+  // Update Curate Badge and Top Alert Bar
+  function updateCurateStatusUI() {
+    const totalCount = state.projects.length;
+    const visibleCount = getVisibleProjects().length;
+
+    if (DOM.curateCountBadge) {
+      DOM.curateCountBadge.textContent = `${visibleCount}/${totalCount}`;
+    }
+
+    if (DOM.curatedAlertBar && DOM.curatedCountText) {
+      if (visibleCount < totalCount) {
+        DOM.curatedAlertBar.style.display = 'flex';
+        DOM.curatedCountText.textContent = `${visibleCount} of ${totalCount}`;
+      } else {
+        DOM.curatedAlertBar.style.display = 'none';
+      }
+    }
+  }
+
+  // Render KPI Metrics dynamically based on visible projects
   function renderKPIStats() {
-    const total = state.projects.length;
-    const featured = state.projects.filter(p => p.featured || p.status.toLowerCase() === 'production').length;
+    const visible = getVisibleProjects();
+    const total = visible.length;
+    const featured = visible.filter(p => p.featured || (p.status || '').toLowerCase() === 'production').length;
     
     // Count distinct technologies
     const techSet = new Set();
-    state.projects.forEach(p => {
+    visible.forEach(p => {
       (p.techStack || []).forEach(t => techSet.add(t));
     });
 
-    const codebases = state.projects.filter(p => !!p.githubUrl).length;
+    const codebases = visible.filter(p => !!p.githubUrl).length;
 
     if (DOM.sidebarProjectCount) DOM.sidebarProjectCount.textContent = `${total}`;
     if (DOM.statTotalProjects) DOM.statTotalProjects.textContent = `${total}`;
@@ -243,16 +312,22 @@
     if (DOM.statTotalCodebases) DOM.statTotalCodebases.textContent = `${codebases}`;
   }
 
-  // Build Dynamic Category Filter Tabs from loaded project categories
+  // Build Dynamic Category Filter Tabs from visible projects
   function buildCategoryTabs() {
     if (!DOM.categoryTabsContainer) return;
 
+    const visible = getVisibleProjects();
     const categories = ['All'];
-    state.projects.forEach(p => {
+    visible.forEach(p => {
       if (p.category && !categories.includes(p.category)) {
         categories.push(p.category);
       }
     });
+
+    // Reset active category if no longer in list
+    if (!categories.includes(state.activeCategory)) {
+      state.activeCategory = 'All';
+    }
 
     DOM.categoryTabsContainer.innerHTML = '';
     categories.forEach(cat => {
@@ -272,7 +347,7 @@
 
   // Filter & Sort Pipeline
   function filterAndRenderProjects() {
-    let result = [...state.projects];
+    let result = [...getVisibleProjects()];
 
     // Filter by Category
     if (state.activeCategory !== 'All') {
@@ -534,13 +609,12 @@
     DOM.modalOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    // Hook up modal buttons
     document.getElementById('modalCloseBtn')?.addEventListener('click', closeProjectModal);
 
     document.getElementById('modalShareBtn')?.addEventListener('click', () => {
       const shareUrl = window.location.href;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        showToast('Link to project copied to clipboard!');
+        showToast('Direct link to project copied!');
       }).catch(() => {
         showToast('Unable to copy link');
       });
@@ -557,6 +631,140 @@
     const newUrl = new URL(window.location);
     newUrl.searchParams.delete('project');
     window.history.replaceState({}, '', newUrl);
+  }
+
+  // Curate / Select Projects Modal Engine
+  function openCurateModal() {
+    if (!DOM.curateModal || !DOM.curateListContainer) return;
+
+    const visibleIds = state.visibleProjectIds 
+      ? new Set(state.visibleProjectIds) 
+      : new Set(state.projects.map(p => p.id));
+
+    DOM.curateListContainer.innerHTML = state.projects.map(project => {
+      const isChecked = visibleIds.has(project.id);
+      return `
+        <div class="curate-item ${isChecked ? 'is-selected' : ''}" data-id="${project.id}">
+          <div class="curate-item-info">
+            <div class="curate-item-title-row">
+              <span class="curate-item-title">${project.title}</span>
+              <span class="category-chip" style="font-size: 0.68rem; padding: 2px 6px;">${project.category}</span>
+              ${project.featured ? `<span class="featured-chip" style="font-size: 0.68rem; padding: 2px 6px;">Featured</span>` : ''}
+            </div>
+            <div class="curate-item-desc">${project.tagline || project.summary}</div>
+          </div>
+          <label class="switch" onclick="event.stopPropagation();">
+            <input type="checkbox" class="curate-checkbox" data-id="${project.id}" ${isChecked ? 'checked' : ''}>
+            <span class="slider"></span>
+          </label>
+        </div>
+      `;
+    }).join('');
+
+    updateCurateModalCount();
+
+    // Attach row click listeners to toggle checkboxes
+    DOM.curateListContainer.querySelectorAll('.curate-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const cb = item.querySelector('.curate-checkbox');
+        if (cb) {
+          cb.checked = !cb.checked;
+          item.classList.toggle('is-selected', cb.checked);
+          updateCurateModalCount();
+        }
+      });
+    });
+
+    DOM.curateListContainer.querySelectorAll('.curate-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const item = cb.closest('.curate-item');
+        if (item) item.classList.toggle('is-selected', cb.checked);
+        updateCurateModalCount();
+      });
+    });
+
+    DOM.curateModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function updateCurateModalCount() {
+    if (!DOM.curateListContainer || !DOM.curateSelectedCount) return;
+    const total = state.projects.length;
+    const selected = DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked').length;
+    DOM.curateSelectedCount.textContent = `${selected} of ${total} selected`;
+  }
+
+  function closeCurateModal() {
+    if (!DOM.curateModal) return;
+    DOM.curateModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function saveCuratedSelection() {
+    if (!DOM.curateListContainer) return;
+    const checkedBoxes = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
+    const checkedIds = checkedBoxes.map(cb => cb.dataset.id);
+
+    if (checkedIds.length === 0) {
+      showToast('Please select at least one project to show');
+      return;
+    }
+
+    if (checkedIds.length === state.projects.length) {
+      state.visibleProjectIds = null;
+      localStorage.removeItem('hub_visible_projects');
+    } else {
+      state.visibleProjectIds = checkedIds;
+      localStorage.setItem('hub_visible_projects', JSON.stringify(checkedIds));
+    }
+
+    // Refresh UI
+    updateCurateStatusUI();
+    renderKPIStats();
+    buildCategoryTabs();
+    renderSkillsAnalytics();
+    filterAndRenderProjects();
+
+    closeCurateModal();
+    showToast(`Showcase updated: showing ${checkedIds.length} projects`);
+  }
+
+  function copyCuratedShareLink() {
+    if (!DOM.curateListContainer) return;
+    const checkedBoxes = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
+    const checkedIds = checkedBoxes.map(cb => cb.dataset.id);
+
+    if (checkedIds.length === 0) {
+      showToast('Select at least one project to share');
+      return;
+    }
+
+    const shareUrl = new URL(window.location.origin + window.location.pathname);
+    shareUrl.searchParams.set('show', checkedIds.join(','));
+
+    navigator.clipboard.writeText(shareUrl.toString()).then(() => {
+      showToast(`Shareable link copied (${checkedIds.length} projects)`);
+    }).catch(() => {
+      showToast('Unable to copy link');
+    });
+  }
+
+  function resetToAllProjects() {
+    state.visibleProjectIds = null;
+    localStorage.removeItem('hub_visible_projects');
+
+    // Remove ?show parameter from browser address bar without reload
+    const newUrl = new URL(window.location);
+    newUrl.searchParams.delete('show');
+    window.history.replaceState({}, '', newUrl);
+
+    updateCurateStatusUI();
+    renderKPIStats();
+    buildCategoryTabs();
+    renderSkillsAnalytics();
+    filterAndRenderProjects();
+
+    showToast('All projects are now displayed');
   }
 
   // Contact Modal
@@ -577,7 +785,7 @@
     if (!DOM.skillsContainer) return;
 
     const counts = {};
-    state.projects.forEach(p => {
+    getVisibleProjects().forEach(p => {
       (p.techStack || []).forEach(t => {
         counts[t] = (counts[t] || 0) + 1;
       });
@@ -673,6 +881,7 @@
       if (e.key === 'Escape') {
         closeProjectModal();
         closeContactModal();
+        closeCurateModal();
       }
     });
 
@@ -713,6 +922,45 @@
     // Theme toggle
     DOM.themeToggleBtn?.addEventListener('click', toggleTheme);
 
+    // Curate modal opener
+    DOM.openCurateModalBtn?.addEventListener('click', openCurateModal);
+    DOM.editCuratedBtn?.addEventListener('click', openCurateModal);
+    DOM.resetCuratedBtn?.addEventListener('click', resetToAllProjects);
+    DOM.curateModalCloseBtn?.addEventListener('click', closeCurateModal);
+    DOM.saveCuratedBtn?.addEventListener('click', saveCuratedSelection);
+    DOM.copyShareCuratedLinkBtn?.addEventListener('click', copyCuratedShareLink);
+
+    // Curate quick buttons
+    DOM.curateSelectAllBtn?.addEventListener('click', () => {
+      DOM.curateListContainer?.querySelectorAll('.curate-checkbox').forEach(cb => {
+        cb.checked = true;
+        cb.closest('.curate-item')?.classList.add('is-selected');
+      });
+      updateCurateModalCount();
+    });
+
+    DOM.curateDeselectAllBtn?.addEventListener('click', () => {
+      DOM.curateListContainer?.querySelectorAll('.curate-checkbox').forEach(cb => {
+        cb.checked = false;
+        cb.closest('.curate-item')?.classList.remove('is-selected');
+      });
+      updateCurateModalCount();
+    });
+
+    DOM.curateOnlyFeaturedBtn?.addEventListener('click', () => {
+      DOM.curateListContainer?.querySelectorAll('.curate-item').forEach(item => {
+        const id = item.dataset.id;
+        const p = state.projects.find(proj => proj.id === id);
+        const cb = item.querySelector('.curate-checkbox');
+        const isFeatured = p ? (p.featured || (p.status || '').toLowerCase() === 'production') : false;
+        if (cb) {
+          cb.checked = isFeatured;
+          item.classList.toggle('is-selected', isFeatured);
+        }
+      });
+      updateCurateModalCount();
+    });
+
     // Mobile sidebar
     DOM.mobileMenuToggle?.addEventListener('click', () => {
       DOM.sidebar?.classList.toggle('open');
@@ -738,6 +986,10 @@
 
     DOM.contactModal?.addEventListener('click', (e) => {
       if (e.target === DOM.contactModal) closeContactModal();
+    });
+
+    DOM.curateModal?.addEventListener('click', (e) => {
+      if (e.target === DOM.curateModal) closeCurateModal();
     });
 
     document.getElementById('contactCloseBtn')?.addEventListener('click', closeContactModal);

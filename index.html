@@ -213,6 +213,13 @@
                 <option value="category">Sort: By Category</option>
               </select>
 
+              <!-- Select / Curate Projects Button -->
+              <button class="btn-curate" id="openCurateModalBtn" title="Choose which projects to display">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                Select Projects
+                <span class="curate-badge" id="curateCountBadge">...</span>
+              </button>
+
               <!-- View Switcher -->
               <div class="view-mode-toggle">
                 <button class="view-btn active" id="viewGridBtn" title="Grid View" aria-label="Grid view">
@@ -227,6 +234,22 @@
 
           <!-- Dynamic Category Filter Tabs -->
           <div class="category-tabs" id="categoryTabsContainer"></div>
+
+          <!-- Curated Alert Bar (Shown when a filtered subset is chosen) -->
+          <div class="curated-alert-bar" id="curatedAlertBar" style="display: none;">
+            <div class="curated-alert-text">
+              <span>🎯</span>
+              <span>Displaying <strong id="curatedCountText">0</strong> selected projects</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="action-btn secondary" id="editCuratedBtn" style="padding: 4px 10px; font-size: 0.78rem;">
+                Edit Selection
+              </button>
+              <button class="action-btn secondary" id="resetCuratedBtn" style="padding: 4px 10px; font-size: 0.78rem;">
+                Show All Projects
+              </button>
+            </div>
+          </div>
         </section>
 
         <!-- Projects Dynamic Rendering Container -->
@@ -309,6 +332,45 @@
             </div>
           </button>
         </div>
+      </div>
+    </div>
+  <!-- Curate Projects Modal (Select which projects to display) -->
+  <div class="modal-overlay" id="curateModal" role="dialog" aria-modal="true" aria-labelledby="curateModalTitle">
+    <div class="modal-box" style="max-width: 640px;">
+      <div class="modal-banner" style="height: 105px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+        <button class="modal-close-btn" id="curateModalCloseBtn" aria-label="Close dialog">✕</button>
+        <div class="modal-banner-content">
+          <h3 id="curateModalTitle" style="color: #ffffff; font-size: 1.35rem; font-weight: 800;">Select Projects to Show</h3>
+          <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem;">Choose which projects visitors will see on this dashboard</p>
+        </div>
+      </div>
+
+      <div class="modal-body" style="padding: 22px;">
+        <div class="curate-modal-actions-bar">
+          <div class="curate-quick-filters">
+            <button class="curate-chip-btn" id="curateSelectAllBtn">Select All</button>
+            <button class="curate-chip-btn" id="curateDeselectAllBtn">Deselect All</button>
+            <button class="curate-chip-btn" id="curateOnlyFeaturedBtn">Featured Only</button>
+          </div>
+          <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;" id="curateSelectedCount">
+            0 selected
+          </span>
+        </div>
+
+        <div class="curate-modal-list" id="curateListContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding: 16px 22px; justify-content: space-between;">
+        <button class="action-btn secondary" id="copyShareCuratedLinkBtn" title="Copy link displaying only these selected projects">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          Copy Shareable Link
+        </button>
+
+        <button class="action-btn primary" id="saveCuratedBtn">
+          Apply Selection
+        </button>
       </div>
     </div>
   </div>

@@ -8,18 +8,20 @@ A modern, high-performance static dashboard webpage for presenting software proj
 
 ## 🌟 Key Features
 
+- **Select & Curate Projects to Display**:
+  - Click **Select Projects** in the dashboard header to open the interactive **Project Curator** modal.
+  - Check or uncheck projects on the fly using smooth toggle switches.
+  - **Shareable Curated Links**: Click **Copy Link for Others** to generate a direct link (e.g. `index.html?show=banana-dashboard,nuxt-ai-chatbot`) that displays *only* the projects you selected!
+  - Saved preferences automatically persist in `localStorage`.
 - **Public-Ready Presentation**:
-  - Designed as an open project portal for visitors and stakeholders.
-  - No user logins, account setups, or third-party API rate limits.
-- **Decoupled External Data Source**:
-  - The entire UI is driven by [`data/projects.json`](data/projects.json).
-  - Add, remove, or modify projects simply by editing the JSON file — no need to touch HTML, CSS, or JS code.
-  - Supports custom data URLs via URL query parameter: `?data=https://your-domain.com/custom-projects.json`.
+  - Designed as an open project portal for visitors, recruiters, and clients.
+  - Zero login requirements, zero user accounts, and zero third-party API rate limits.
+  - Works seamlessly offline via the local `file://` protocol (direct double-click) as well as hosted under `http://` / `https://`.
 - **Project Deep-Linking & Sharing**:
-  - Visitors can click **Share** on any project to copy a direct link (e.g. `index.html?project=banana-dashboard`), which automatically opens that project's modal on load.
+  - Visitors can click **Share** on any individual project card to copy a direct link (e.g. `index.html?project=banana-dashboard`), which automatically opens that project's detail modal on load.
 - **Interactive Filtering & Search**:
   - Real-time search across titles, summaries, descriptions, and tech stacks (press `/` anywhere to focus search).
-  - Category filter pills dynamically generated from the loaded projects.
+  - Category filter pills dynamically generated from the visible projects.
   - Status filters (*Production*, *Active*, *Beta*, *Featured*).
   - Sort by *Featured*, *Recently Updated*, *Alphabetical*, or *Category*.
 - **Grid & List Views**:
@@ -40,11 +42,12 @@ A modern, high-performance static dashboard webpage for presenting software proj
 portfolios/
 ├── index.html            # Main dashboard shell & markup
 ├── css/
-│   └── styles.css        # Responsive design system, glassmorphism, skeletons, themes
+│   └── styles.css        # Responsive design system, glassmorphism, switches, themes
 ├── js/
-│   └── app.js            # Reactive application engine (loads data/projects.json)
+│   └── app.js            # Reactive application engine & project curator
 ├── data/
-│   └── projects.json     # External data source containing all showcased projects
+│   ├── projects-data.js  # External script data source (works on file:// and http://)
+│   └── projects.json     # Clean JSON data source
 ├── assets/               # Folder for images, logos, or icons
 └── README.md             # Documentation
 ```
@@ -66,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📝 How to Add or Edit Projects
 
-Open [`data/projects.json`](data/projects.json) and add or modify project items inside the `"projects"` array:
+Open [`data/projects.json`](data/projects.json) (or `data/projects-data.js`) and add or modify project items inside the `"projects"` array:
 
 ```json
 {
@@ -100,7 +103,7 @@ Deploy directly to **GitHub Pages**, **Vercel**, or **Netlify**:
 
 ```bash
 git add .
-git commit -m "feat: public project showcase dashboard"
+git commit -m "feat: public project showcase dashboard with curator"
 git push -u origin main
 ```
 In your GitHub repository settings, enable **GitHub Pages** from the `main` branch.
