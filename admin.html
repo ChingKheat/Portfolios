@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Showcase Curator & Access Portal</title>
+  <meta name="description" content="Authorized administration site to select and curate GitHub projects displayed to visitors.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="app-layout">
+    
+    <!-- Top Bar -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <a href="index.html" class="brand-badge">
+          <div class="brand-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-title">Showcase Curator Portal</h1>
+            <span class="brand-subtitle">Project Display & Access Manager</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-right">
+        <a href="index.html" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>View Public Site</span>
+        </a>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="icon-btn" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <button id="logout-btn" class="btn btn-secondary hidden" title="Lock and exit curator session">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Lock Session</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      
+      <!-- Screen 1: Access Gate (Only Authorized Users) -->
+      <section id="access-gate" class="gate-wrapper">
+        <div class="gate-card">
+          <div class="gate-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <h2 class="gate-title">Restricted Access</h2>
+          <p class="gate-desc">Enter your curator access passkey to choose and configure which GitHub projects are displayed to public visitors.</p>
+
+          <form id="gate-form" class="gate-form" onsubmit="return false;">
+            <div class="passkey-input-wrapper">
+              <input type="password" id="passkey-input" class="passkey-input" placeholder="Enter passkey..." autocomplete="current-password" autofocus>
+              <button type="button" id="toggle-passkey-visibility" class="toggle-visibility-btn" title="Show/Hide passkey">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+            <div id="gate-error" class="gate-error">Incorrect passkey. Please try again.</div>
+            <button type="submit" id="unlock-btn" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+              Unlock Curator Dashboard
+            </button>
+          </form>
+
+          <div class="gate-hint">
+            <strong>Default Passkey:</strong> <code>admin2026</code><br>
+            <em>You can change this passkey anytime once unlocked.</em>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Curator Dashboard (Shown after access is granted) -->
+      <section id="curator-dashboard" class="hidden">
+        
+        <!-- Header Bar -->
+        <div class="curator-header-bar">
+          <div class="curator-status-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Authorized Access Granted</span>
+          </div>
+
+          <div class="curator-actions-group">
+            <button id="change-passkey-btn" class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>Change Passkey</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Status Cards -->
+        <div class="curator-kpi-row">
+          <div class="curator-kpi-card">
+            <span class="kpi-title">Displayed to Visitors</span>
+            <span class="kpi-num" id="kpi-selected-count">0</span>
+            <span class="kpi-sub">Visible on public showcase</span>
+          </div>
+          <div class="curator-kpi-card">
+            <span class="kpi-title">Hidden From Public</span>
+            <span class="kpi-num" id="kpi-hidden-count" style="color: #ef4444;">0</span>
+            <span class="kpi-sub">Excluded from visitors' view</span>
+          </div>
+          <div class="curator-kpi-card">
+            <span class="kpi-title">Total Repositories</span>
+            <span class="kpi-num" id="kpi-total-count">0</span>
+            <span class="kpi-sub">Available projects in catalog</span>
+          </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="curator-toolbar">
+          <div class="search-box curator-search-box">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="curator-search" placeholder="Filter projects by title, stack, ID..." autocomplete="off">
+          </div>
+
+          <div class="category-tabs" id="curator-filter-tabs">
+            <button class="tab-chip active" data-filter="all">All Projects</button>
+            <button class="tab-chip" data-filter="visible">Displayed (Visible)</button>
+            <button class="tab-chip" data-filter="hidden">Hidden</button>
+          </div>
+
+          <div class="batch-buttons">
+            <button id="select-all-btn" class="btn btn-secondary" title="Display all projects">
+              Select All
+            </button>
+            <button id="deselect-all-btn" class="btn btn-secondary" title="Hide all projects">
+              Deselect All
+            </button>
+          </div>
+        </div>
+
+        <!-- Projects Selection Grid -->
+        <div id="curator-grid" class="curator-grid">
+          <!-- Populated dynamically via js/admin.js -->
+        </div>
+
+        <!-- Publishing & Saving Dock -->
+        <div class="publish-dock">
+          <div class="dock-info">
+            <div class="dock-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div class="dock-text-title" id="dock-summary">Ready to publish changes</div>
+              <div class="dock-text-sub">Apply live on this browser, download updated data file, or share custom link.</div>
+            </div>
+          </div>
+
+          <div class="dock-buttons">
+            <button id="save-local-btn" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Apply Live Now</span>
+            </button>
+
+            <button id="export-file-btn" class="btn btn-secondary" title="Download updated projects-data.js to permanently publish for everyone on GitHub Pages">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download projects-data.js</span>
+            </button>
+
+            <button id="copy-link-btn" class="btn btn-secondary" title="Copy shareable link showing this exact curated selection">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              <span>Copy Curated Link</span>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Change Passkey Modal -->
+  <div id="passkey-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header-banner" style="padding: 1.5rem;">
+        <button id="close-passkey-modal" class="modal-close">&times;</button>
+        <h3 style="font-size: 1.25rem; font-weight: 800;">Change Access Passkey</h3>
+        <p style="font-size: 0.85rem; opacity: 0.9;">Update the secret key required to access this curator portal.</p>
+      </div>
+      <div class="modal-body" style="padding: 1.5rem;">
+        <form id="change-passkey-form" onsubmit="return false;">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <label for="new-passkey" style="font-size: 0.85rem; font-weight: 600;">New Secret Passkey:</label>
+            <input type="password" id="new-passkey" class="passkey-input" placeholder="Enter new passkey..." required>
+          </div>
+          <div id="passkey-change-feedback" class="gate-error"></div>
+          <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+            <button type="button" id="cancel-passkey-btn" class="btn btn-secondary">Cancel</button>
+            <button type="submit" id="save-passkey-btn" class="btn btn-primary">Save New Passkey</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Notification -->
+  <div id="toast" class="toast-notice">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toast-msg">Settings saved</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data/projects-data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
