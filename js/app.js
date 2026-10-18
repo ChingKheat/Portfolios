@@ -81,47 +81,74 @@
     loadProjectsData();
   }
 
-  // Load Projects from external data/projects.json asynchronously
+  function applyLoadedData(data) {
+    state.hubInfo = data.hub || {};
+    state.projects = data.projects || [];
+    state.milestones = data.milestones || [];
+
+    // Update Hub Title & Details
+    renderHubInfo();
+
+    // Render Dashboard Metrics
+    renderKPIStats();
+
+    // Build Dynamic Category Filter Tabs based on loaded projects
+    buildCategoryTabs();
+
+    // Render Analytics & Milestones
+    renderSkillsAnalytics();
+    renderMilestones();
+
+    // Filter and render project cards
+    filterAndRenderProjects();
+
+    // Check URL parameters for direct project deep-link (e.g. ?project=banana-dashboard)
+    const directProjectId = new URLSearchParams(window.location.search).get('project');
+    if (directProjectId) {
+      const target = state.projects.find(p => p.id === directProjectId);
+      if (target) {
+        openProjectModal(directProjectId);
+      }
+    }
+  }
+
+  // Load Projects from external data file (works on both file:// and http://)
   async function loadProjectsData() {
     state.isLoading = true;
-    renderSkeletonLoaders();
 
+    // 1. If custom ?data= URL parameter was provided, attempt to fetch it
+    const urlParam = new URLSearchParams(window.location.search).get('data');
+    if (urlParam) {
+      renderSkeletonLoaders();
+      try {
+        const response = await fetch(urlParam);
+        if (response.ok) {
+          const data = await response.json();
+          applyLoadedData(data);
+          state.isLoading = false;
+          return;
+        }
+      } catch (e) {
+        console.warn('Failed to fetch custom data parameter:', e);
+      }
+    }
+
+    // 2. If window.PROJECTS_DATA is loaded via <script src="data/projects-data.js">, use it instantly (works 100% on file:// protocol!)
+    if (typeof window !== 'undefined' && window.PROJECTS_DATA && window.PROJECTS_DATA.projects) {
+      applyLoadedData(window.PROJECTS_DATA);
+      state.isLoading = false;
+      return;
+    }
+
+    // 3. Otherwise try fetch() for environments running under http:// or https://
+    renderSkeletonLoaders();
     try {
       const response = await fetch(state.dataSource, { cache: 'no-cache' });
       if (!response.ok) {
-        throw new Error(`Failed to load projects data: HTTP ${response.status}`);
+        throw new Error(`Failed to load projects: HTTP ${response.status}`);
       }
       const data = await response.json();
-
-      state.hubInfo = data.hub || {};
-      state.projects = data.projects || [];
-      state.milestones = data.milestones || [];
-
-      // Update Hub Title & Details
-      renderHubInfo();
-
-      // Render Dashboard Metrics
-      renderKPIStats();
-
-      // Build Dynamic Category Filter Tabs based on loaded projects
-      buildCategoryTabs();
-
-      // Render Analytics & Milestones
-      renderSkillsAnalytics();
-      renderMilestones();
-
-      // Filter and render project cards
-      filterAndRenderProjects();
-
-      // Check URL parameters for direct project deep-link (e.g. ?project=banana-dashboard)
-      const directProjectId = new URLSearchParams(window.location.search).get('project');
-      if (directProjectId) {
-        const target = state.projects.find(p => p.id === directProjectId);
-        if (target) {
-          openProjectModal(directProjectId);
-        }
-      }
-
+      applyLoadedData(data);
     } catch (err) {
       console.error('Data loading error:', err);
       renderErrorState(err.message);
