@@ -261,5 +261,19 @@
       "title": "Malaysia Travel Companion v1.2",
       "desc": "Expanded regional travel guides across 13 Malaysian states with offline favorites."
     }
-  ]
+  ],
+  "showcase": {
+    "repository": "ChingKheat/portfolios",
+    "branch": "main",
+    "displayedProjectIds": [
+      "banana-dashboard",
+      "SmashDash_CourtBooking",
+      "Malaysia-Travel-Apps",
+      "nuxt-ai-chatbot",
+      "portfolio",
+      "Java-OOPT",
+      "SmashDash",
+      "CDTest"
+    ]
+  }
 }

@@ -97,13 +97,58 @@ Open [`data/projects.json`](data/projects.json) (or `data/projects-data.js`) and
 
 ---
 
+---
+
+## 🎯 How to Select Projects to Show Visitors (GitHub Permanent Selection)
+
+When you want future visitors to your website to see only specific projects:
+
+### Method 1: 1-Click Push via GitHub API (Direct from Dashboard)
+1. Open the dashboard in your browser and click the **"Select Projects"** button in the header.
+2. Toggle ON the projects you want visitors to see (use *Select All*, *Deselect All*, or *Featured Only* for quick selection).
+3. In the modal's **"Save to GitHub"** section under the **1-Click Push** tab:
+   - Ensure the repository is set to `ChingKheat/portfolios` and branch to `main`.
+   - Enter your [GitHub Personal Access Token](https://github.com/settings/tokens/new?scopes=repo&description=Project+Showcase+Dashboard) (needs `repo` scope).
+   - Click **"Push to GitHub (Live for Next Visitors)"**.
+4. The dashboard commits the updated `data/projects-data.js` and `data/projects.json` directly to your GitHub repository. GitHub Pages will immediately reflect the selected projects for all visitors worldwide!
+
+### Method 2: Edit Directly on GitHub.com (No Token Needed)
+1. In the **"Select Projects"** modal, select your projects and click the **"Edit on GitHub"** tab.
+2. Click **"Copy Selected IDs"** to copy the selected project IDs array.
+3. Click **"Edit on GitHub ↗"** to open [`data/projects-data.js`](data/projects-data.js) directly in GitHub's web editor.
+4. Replace the `displayedProjectIds` array inside `showcase`:
+   ```javascript
+   "showcase": {
+     "repository": "ChingKheat/portfolios",
+     "branch": "main",
+     "displayedProjectIds": [
+       "banana-dashboard",
+       "SmashDash_CourtBooking",
+       "nuxt-ai-chatbot"
+     ]
+   }
+   ```
+5. Click **Commit changes**. All visitors will now see only those projects!
+
+### Method 3: Edit Locally via Git
+1. In your local repository, open [`data/projects-data.js`](data/projects-data.js) (or click **"Download projects-data.js"** in the modal).
+2. Adjust `showcase.displayedProjectIds` to include only the project IDs you want to display.
+3. Commit and push to GitHub:
+   ```bash
+   git add data/
+   git commit -m "chore: update displayed projects showcase"
+   git push origin main
+   ```
+
+---
+
 ## 🌐 Free Hosting & Deployment
 
-Deploy directly to **GitHub Pages**, **Vercel**, or **Netlify**:
+Deploy directly to **GitHub Pages**:
 
 ```bash
 git add .
 git commit -m "feat: public project showcase dashboard with curator"
 git push -u origin main
 ```
-In your GitHub repository settings, enable **GitHub Pages** from the `main` branch.
+In your GitHub repository settings under **Pages**, select branch `main` / `root` and click **Save**. Your site will be live at `https://chingkheat.github.io/portfolios/`!

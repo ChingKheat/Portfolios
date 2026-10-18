@@ -1,6 +1,6 @@
 /**
  * Project Catalog Data Source
- * Automatically updated by Project Curator.
+ * Edit displayedProjectIds below or in data/projects.json on GitHub to control which projects visitors see.
  */
 window.PROJECTS_DATA = {
   "hub": {
@@ -265,5 +265,19 @@ window.PROJECTS_DATA = {
       "title": "Malaysia Travel Companion v1.2",
       "desc": "Expanded regional travel guides across 13 Malaysian states with offline favorites."
     }
-  ]
+  ],
+  "showcase": {
+    "repository": "ChingKheat/portfolios",
+    "branch": "main",
+    "displayedProjectIds": [
+      "banana-dashboard",
+      "SmashDash_CourtBooking",
+      "Malaysia-Travel-Apps",
+      "nuxt-ai-chatbot",
+      "portfolio",
+      "Java-OOPT",
+      "SmashDash",
+      "CDTest"
+    ]
+  }
 };

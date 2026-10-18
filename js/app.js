@@ -1,13 +1,20 @@
 /**
  * Project Showcase Hub - Dashboard Engine
- * Dynamically loads project data from an external JSON file (no hardcoded data).
- * Features an interactive Project Curator to select and share custom project showcases.
+ * Dynamically loads project data from external data files (no hardcoded data).
+ * Features an interactive Project Curator to select and commit displayed projects to GitHub.
  */
 
 (function () {
   'use strict';
 
-  // Helper to read initial visible projects from URL or localStorage
+  // UTF-8 to Base64 encoder for GitHub REST API
+  function utf8ToBase64(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode('0x' + p1);
+    }));
+  }
+
+  // Read initial visible projects from URL parameter or localStorage
   function getInitialVisibleProjects() {
     const urlParam = new URLSearchParams(window.location.search).get('show');
     if (urlParam) {
@@ -20,12 +27,13 @@
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch (e) {}
     }
-    return null; // null means all projects are visible
+    return null; // null means use showcase default from data file
   }
 
   // Application State
   const state = {
     dataSource: new URLSearchParams(window.location.search).get('data') || 'data/projects.json',
+    dataRaw: null,
     hubInfo: {},
     projects: [],
     visibleProjectIds: getInitialVisibleProjects(),
@@ -57,7 +65,7 @@
     reload: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>`
   };
 
-  // DOM Elements
+  // DOM Elements cache
   const DOM = {
     html: document.documentElement,
     projectsContainer: document.getElementById('projectsContainer'),
@@ -104,7 +112,16 @@
     curateDeselectAllBtn: document.getElementById('curateDeselectAllBtn'),
     curateOnlyFeaturedBtn: document.getElementById('curateOnlyFeaturedBtn'),
     copyShareCuratedLinkBtn: document.getElementById('copyShareCuratedLinkBtn'),
-    saveCuratedBtn: document.getElementById('saveCuratedBtn')
+    saveCuratedBtn: document.getElementById('saveCuratedBtn'),
+    // GitHub permanent sync controls
+    ghRepoInput: document.getElementById('ghRepoInput'),
+    ghBranchInput: document.getElementById('ghBranchInput'),
+    ghTokenInput: document.getElementById('ghTokenInput'),
+    btnPushGhApi: document.getElementById('btnPushGhApi'),
+    ghDirectEditLink: document.getElementById('ghDirectEditLink'),
+    copySelectedIdsBtn: document.getElementById('copySelectedIdsBtn'),
+    downloadDataJsBtn: document.getElementById('downloadDataJsBtn'),
+    copyDataJsBtn: document.getElementById('copyDataJsBtn')
   };
 
   // Initializer
@@ -114,18 +131,30 @@
     loadProjectsData();
   }
 
-  // Get active visible projects (defaults to p.visible !== false for all visitors)
+  // Get active visible projects (subset chosen by curator or permanent showcase)
   function getVisibleProjects() {
+    // 1. Session / Local selection priority
     if (state.visibleProjectIds && state.visibleProjectIds.length > 0) {
       return state.projects.filter(p => state.visibleProjectIds.includes(p.id));
     }
+    // 2. Permanent showcase configuration in data file
+    if (state.dataRaw?.showcase?.displayedProjectIds && Array.isArray(state.dataRaw.showcase.displayedProjectIds)) {
+      return state.projects.filter(p => state.dataRaw.showcase.displayedProjectIds.includes(p.id));
+    }
+    // 3. Project visible flag fallback
     return state.projects.filter(p => p.visible !== false);
   }
 
   function applyLoadedData(data) {
+    state.dataRaw = data;
     state.hubInfo = data.hub || {};
     state.projects = data.projects || [];
     state.milestones = data.milestones || [];
+
+    // If no custom selection active, default to showcase.displayedProjectIds
+    if (!state.visibleProjectIds && data.showcase?.displayedProjectIds) {
+      state.visibleProjectIds = [...data.showcase.displayedProjectIds];
+    }
 
     // Validate visibleProjectIds against loaded projects
     if (state.visibleProjectIds) {
@@ -281,8 +310,11 @@
       DOM.curateCountBadge.textContent = `${visibleCount}/${totalCount}`;
     }
 
+    // Only show the preview alert bar if the user has an active local preview or URL query override
+    const hasLocalOverride = !!localStorage.getItem('hub_visible_projects') || !!new URLSearchParams(window.location.search).get('show');
+
     if (DOM.curatedAlertBar && DOM.curatedCountText) {
-      if (visibleCount < totalCount) {
+      if (hasLocalOverride) {
         DOM.curatedAlertBar.style.display = 'flex';
         DOM.curatedCountText.textContent = `${visibleCount} of ${totalCount}`;
       } else {
@@ -324,7 +356,6 @@
       }
     });
 
-    // Reset active category if no longer in list
     if (!categories.includes(state.activeCategory)) {
       state.activeCategory = 'All';
     }
@@ -627,19 +658,67 @@
     document.body.style.overflow = '';
     state.selectedProjectId = null;
 
-    // Remove project parameter from URL without page reload
     const newUrl = new URL(window.location);
     newUrl.searchParams.delete('project');
     window.history.replaceState({}, '', newUrl);
+  }
+
+  // Get currently checked project IDs inside Curate modal
+  function getCuratorCheckedIds() {
+    if (!DOM.curateListContainer) return [];
+    const checked = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
+    return checked.map(cb => cb.dataset.id);
+  }
+
+  // Generate updated data JSON string and JS content
+  function generateUpdatedDataContent(checkedIds) {
+    const raw = state.dataRaw || {};
+    const repo = DOM.ghRepoInput ? DOM.ghRepoInput.value.trim() : (raw.showcase?.repository || 'ChingKheat/portfolios');
+    const branch = DOM.ghBranchInput ? DOM.ghBranchInput.value.trim() : (raw.showcase?.branch || 'main');
+
+    const updated = {
+      ...raw,
+      showcase: {
+        ...(raw.showcase || {}),
+        repository: repo,
+        branch: branch,
+        displayedProjectIds: checkedIds
+      },
+      projects: state.projects.map(p => ({
+        ...p,
+        visible: checkedIds.includes(p.id)
+      }))
+    };
+
+    const jsonStr = JSON.stringify(updated, null, 2);
+    const jsStr = `/**\n * Project Catalog Data Source\n * Edit displayedProjectIds below or in data/projects.json on GitHub to control which projects visitors see.\n */\nwindow.PROJECTS_DATA = ${jsonStr};\n`;
+
+    return { updated, jsonStr, jsStr, repo, branch };
   }
 
   // Curate / Select Projects Modal Engine
   function openCurateModal() {
     if (!DOM.curateModal || !DOM.curateListContainer) return;
 
+    // Load saved GitHub sync preferences
+    const defaultRepo = state.dataRaw?.showcase?.repository || 'ChingKheat/portfolios';
+    const defaultBranch = state.dataRaw?.showcase?.branch || 'main';
+
+    if (DOM.ghRepoInput) {
+      DOM.ghRepoInput.value = localStorage.getItem('hub_gh_repo') || defaultRepo;
+    }
+    if (DOM.ghBranchInput) {
+      DOM.ghBranchInput.value = localStorage.getItem('hub_gh_branch') || defaultBranch;
+    }
+    if (DOM.ghTokenInput) {
+      DOM.ghTokenInput.value = localStorage.getItem('hub_gh_token') || '';
+    }
+
+    updateDirectEditLink();
+
     const visibleIds = state.visibleProjectIds 
       ? new Set(state.visibleProjectIds) 
-      : new Set(state.projects.filter(p => p.visible !== false).map(p => p.id));
+      : new Set(getVisibleProjects().map(p => p.id));
 
     DOM.curateListContainer.innerHTML = state.projects.map(project => {
       const isChecked = visibleIds.has(project.id);
@@ -694,52 +773,31 @@
     DOM.curateSelectedCount.textContent = `${selected} of ${total} selected`;
   }
 
+  function updateDirectEditLink() {
+    if (!DOM.ghDirectEditLink) return;
+    const repo = DOM.ghRepoInput ? DOM.ghRepoInput.value.trim() : 'ChingKheat/portfolios';
+    const branch = DOM.ghBranchInput ? DOM.ghBranchInput.value.trim() : 'main';
+    DOM.ghDirectEditLink.href = `https://github.com/${repo}/edit/${branch}/data/projects-data.js`;
+  }
+
   function closeCurateModal() {
     if (!DOM.curateModal) return;
     DOM.curateModal.classList.remove('active');
     document.body.style.overflow = '';
   }
 
-  async function saveCuratedSelection() {
-    if (!DOM.curateListContainer) return;
-    const checkedBoxes = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
-    const checkedIds = checkedBoxes.map(cb => cb.dataset.id);
+  // Apply preview selection locally
+  function saveCuratedSelection() {
+    const checkedIds = getCuratorCheckedIds();
 
     if (checkedIds.length === 0) {
-      showToast('Please select at least one project to show');
+      showToast('Please select at least one project');
       return;
     }
 
-    // Update in-memory visible flags
-    state.projects.forEach(p => {
-      p.visible = checkedIds.includes(p.id);
-    });
     state.visibleProjectIds = checkedIds;
+    localStorage.setItem('hub_visible_projects', JSON.stringify(checkedIds));
 
-    const updatedData = {
-      hub: state.hubInfo,
-      projects: state.projects,
-      milestones: state.milestones
-    };
-
-    let serverSaved = false;
-
-    // 1. Try sending to local server.py endpoint
-    try {
-      const response = await fetch('/api/save-selection', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visibleIds: checkedIds })
-      });
-      if (response.ok) {
-        const resJson = await response.json();
-        if (resJson.success) serverSaved = true;
-      }
-    } catch (e) {
-      // Local server not running or static host
-    }
-
-    // Refresh UI
     updateCurateStatusUI();
     renderKPIStats();
     buildCategoryTabs();
@@ -747,34 +805,124 @@
     filterAndRenderProjects();
 
     closeCurateModal();
+    showToast(`Preview updated: showing ${checkedIds.length} projects`);
+  }
 
-    if (serverSaved) {
-      showToast(`✅ Published! Next visitors will see these ${checkedIds.length} projects.`);
-    } else {
-      // If server is not active, trigger 1-click update/download of projects-data.js
-      downloadUpdatedDataFile(updatedData);
-      showToast(`✅ Saved! Updated projects-data.js downloaded to data/ folder.`);
+  // Direct 1-Click Push to GitHub via REST API
+  async function pushSelectionToGitHub() {
+    const checkedIds = getCuratorCheckedIds();
+    if (checkedIds.length === 0) {
+      showToast('Select at least one project to display');
+      return;
+    }
+
+    const repo = DOM.ghRepoInput?.value.trim();
+    const branch = DOM.ghBranchInput?.value.trim() || 'main';
+    const token = DOM.ghTokenInput?.value.trim();
+
+    if (!repo) {
+      showToast('Please specify the GitHub repository (owner/repo)');
+      return;
+    }
+
+    if (!token) {
+      showToast('Please enter your GitHub Personal Access Token (repo scope)');
+      DOM.ghTokenInput?.focus();
+      return;
+    }
+
+    // Save preferences
+    localStorage.setItem('hub_gh_repo', repo);
+    localStorage.setItem('hub_gh_branch', branch);
+    localStorage.setItem('hub_gh_token', token);
+
+    const btn = DOM.btnPushGhApi;
+    const originalText = btn.innerHTML;
+    btn.classList.add('pushing');
+    btn.innerHTML = `<span class="pulse-dot" style="background:#fff;"></span> Committing to GitHub...`;
+
+    try {
+      const { updated, jsStr, jsonStr } = generateUpdatedDataContent(checkedIds);
+
+      // Determine auth header format (Bearer or token)
+      const authHeader = (token.startsWith('Bearer ') || token.startsWith('token '))
+        ? token
+        : (token.startsWith('github_pat_') ? `Bearer ${token}` : `token ${token}`);
+
+      // Helper to update a file on GitHub
+      async function updateGitHubFile(path, contentStr) {
+        const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+        const headers = {
+          'Authorization': authHeader,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        };
+
+        let sha = null;
+        try {
+          const checkRes = await fetch(url, { headers });
+          if (checkRes.ok) {
+            const fileData = await checkRes.json();
+            sha = fileData.sha;
+          }
+        } catch (e) {
+          console.warn(`Could not get existing sha for ${path}:`, e);
+        }
+
+        const body = {
+          message: `chore: update displayed projects showcase (${checkedIds.length} projects)`,
+          content: utf8ToBase64(contentStr),
+          branch: branch
+        };
+        if (sha) body.sha = sha;
+
+        const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+          method: 'PUT',
+          headers: headers,
+          body: JSON.stringify(body)
+        });
+
+        if (!putRes.ok) {
+          const errData = await putRes.json().catch(() => ({}));
+          throw new Error(errData.message || `HTTP ${putRes.status}`);
+        }
+        return await putRes.json();
+      }
+
+      // Update both projects-data.js and projects.json on GitHub
+      await updateGitHubFile('data/projects-data.js', jsStr);
+      try {
+        await updateGitHubFile('data/projects.json', jsonStr);
+      } catch (e) {
+        console.warn('projects.json update notice:', e);
+      }
+
+      // Apply locally
+      state.dataRaw = updated;
+      state.visibleProjectIds = checkedIds;
+      localStorage.removeItem('hub_visible_projects'); // clear local override since it's now permanent
+
+      updateCurateStatusUI();
+      renderKPIStats();
+      buildCategoryTabs();
+      renderSkillsAnalytics();
+      filterAndRenderProjects();
+
+      closeCurateModal();
+      showToast(`🎉 Pushed to GitHub! All future visitors will see these ${checkedIds.length} projects.`);
+
+    } catch (err) {
+      console.error('GitHub Push error:', err);
+      showToast(`GitHub commit failed: ${err.message}`);
+    } finally {
+      btn.classList.remove('pushing');
+      btn.innerHTML = originalText;
     }
   }
 
-  function downloadUpdatedDataFile(data) {
-    const fileContent = "/**\n * Project Catalog Data Source\n * Automatically updated by Project Curator.\n */\nwindow.PROJECTS_DATA = " + JSON.stringify(data, null, 2) + ";\n";
-    const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'projects-data.js';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
+  // Copy direct curated link
   function copyCuratedShareLink() {
-    if (!DOM.curateListContainer) return;
-    const checkedBoxes = Array.from(DOM.curateListContainer.querySelectorAll('.curate-checkbox:checked'));
-    const checkedIds = checkedBoxes.map(cb => cb.dataset.id);
-
+    const checkedIds = getCuratorCheckedIds();
     if (checkedIds.length === 0) {
       showToast('Select at least one project to share');
       return;
@@ -790,22 +938,56 @@
     });
   }
 
+  // Download updated projects-data.js file
+  function downloadUpdatedDataFile() {
+    const checkedIds = getCuratorCheckedIds();
+    const { jsStr } = generateUpdatedDataContent(checkedIds);
+
+    const blob = new Blob([jsStr], { type: 'application/javascript;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'projects-data.js';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showToast('Downloaded projects-data.js. Replace it in data/ and push to GitHub!');
+  }
+
+  // Copy updated code to clipboard
+  function copyUpdatedDataCode() {
+    const checkedIds = getCuratorCheckedIds();
+    const { jsStr } = generateUpdatedDataContent(checkedIds);
+
+    navigator.clipboard.writeText(jsStr).then(() => {
+      showToast('Copied updated projects-data.js to clipboard!');
+    }).catch(() => {
+      showToast('Failed to copy code');
+    });
+  }
+
+  // Copy selected IDs only
+  function copySelectedIdsOnly() {
+    const checkedIds = getCuratorCheckedIds();
+    const formatted = JSON.stringify(checkedIds, null, 2);
+
+    navigator.clipboard.writeText(formatted).then(() => {
+      showToast('Copied selected project IDs!');
+    }).catch(() => {
+      showToast('Failed to copy IDs');
+    });
+  }
+
+  // Reset to display all projects
   function resetToAllProjects() {
-    state.projects.forEach(p => p.visible = true);
     state.visibleProjectIds = null;
     localStorage.removeItem('hub_visible_projects');
 
-    // Remove ?show parameter from browser address bar without reload
     const newUrl = new URL(window.location);
     newUrl.searchParams.delete('show');
     window.history.replaceState({}, '', newUrl);
-
-    // Also auto-save reset if server is running
-    fetch('/api/save-selection', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visibleIds: state.projects.map(p => p.id) })
-    }).catch(() => {});
 
     updateCurateStatusUI();
     renderKPIStats();
@@ -813,7 +995,7 @@
     renderSkillsAnalytics();
     filterAndRenderProjects();
 
-    showToast('All projects are now displayed');
+    showToast('Reset to live showcase');
   }
 
   // Contact Modal
@@ -895,7 +1077,7 @@
       toast.style.transform = 'translateY(10px)';
       toast.style.transition = 'all 0.25s ease';
       setTimeout(() => toast.remove(), 250);
-    }, 2800);
+    }, 3200);
   }
 
   // Theme Management
@@ -971,7 +1153,7 @@
     // Theme toggle
     DOM.themeToggleBtn?.addEventListener('click', toggleTheme);
 
-    // Curate modal opener
+    // Curate modal openers
     DOM.openCurateModalBtn?.addEventListener('click', openCurateModal);
     DOM.editCuratedBtn?.addEventListener('click', openCurateModal);
     DOM.resetCuratedBtn?.addEventListener('click', resetToAllProjects);
@@ -979,7 +1161,36 @@
     DOM.saveCuratedBtn?.addEventListener('click', saveCuratedSelection);
     DOM.copyShareCuratedLinkBtn?.addEventListener('click', copyCuratedShareLink);
 
-    // Curate quick buttons
+    // GitHub Sync Panel actions
+    DOM.btnPushGhApi?.addEventListener('click', pushSelectionToGitHub);
+    DOM.downloadDataJsBtn?.addEventListener('click', downloadUpdatedDataFile);
+    DOM.copyDataJsBtn?.addEventListener('click', copyUpdatedDataCode);
+    DOM.copySelectedIdsBtn?.addEventListener('click', copySelectedIdsOnly);
+
+    DOM.ghRepoInput?.addEventListener('input', () => {
+      localStorage.setItem('hub_gh_repo', DOM.ghRepoInput.value.trim());
+      updateDirectEditLink();
+    });
+    DOM.ghBranchInput?.addEventListener('input', () => {
+      localStorage.setItem('hub_gh_branch', DOM.ghBranchInput.value.trim());
+      updateDirectEditLink();
+    });
+    DOM.ghTokenInput?.addEventListener('input', () => {
+      localStorage.setItem('hub_gh_token', DOM.ghTokenInput.value.trim());
+    });
+
+    // Sync Tabs switching
+    document.querySelectorAll('.sync-tab-btn').forEach(tabBtn => {
+      tabBtn.addEventListener('click', () => {
+        document.querySelectorAll('.sync-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.sync-tab-panel').forEach(p => p.classList.remove('active'));
+        tabBtn.classList.add('active');
+        const targetPanel = document.getElementById(tabBtn.dataset.tab);
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+
+    // Curate quick filter buttons
     DOM.curateSelectAllBtn?.addEventListener('click', () => {
       DOM.curateListContainer?.querySelectorAll('.curate-checkbox').forEach(cb => {
         cb.checked = true;

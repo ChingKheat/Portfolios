@@ -239,14 +239,14 @@
           <div class="curated-alert-bar" id="curatedAlertBar" style="display: none;">
             <div class="curated-alert-text">
               <span>🎯</span>
-              <span>Displaying <strong id="curatedCountText">0</strong> selected projects</span>
+              <span>Preview Mode: displaying <strong id="curatedCountText">0</strong> projects</span>
             </div>
             <div style="display: flex; gap: 8px;">
               <button class="action-btn secondary" id="editCuratedBtn" style="padding: 4px 10px; font-size: 0.78rem;">
-                Edit Selection
+                Push to GitHub / Edit
               </button>
               <button class="action-btn secondary" id="resetCuratedBtn" style="padding: 4px 10px; font-size: 0.78rem;">
-                Show All Projects
+                Reset to Live Showcase
               </button>
             </div>
           </div>
@@ -343,7 +343,7 @@
         <button class="modal-close-btn" id="curateModalCloseBtn" aria-label="Close dialog">✕</button>
         <div class="modal-banner-content">
           <h3 id="curateModalTitle" style="color: #ffffff; font-size: 1.35rem; font-weight: 800;">Select Projects to Show</h3>
-          <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem;">Select projects that will be shown to everyone who visits your website</p>
+          <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem;">Choose which projects visitors will see on this dashboard</p>
         </div>
       </div>
 
@@ -362,16 +362,92 @@
         <div class="curate-modal-list" id="curateListContainer">
           <!-- Populated by JS -->
         </div>
+
+        <!-- GitHub Permanent Sync Section -->
+        <div class="github-sync-section">
+          <div class="github-sync-header">
+            <div class="github-sync-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              Save to GitHub (Updates for All Visitors)
+            </div>
+            <div class="sync-tabs">
+              <button class="sync-tab-btn active" data-tab="pushTab">1-Click Push</button>
+              <button class="sync-tab-btn" data-tab="githubWebTab">Edit on GitHub</button>
+              <button class="sync-tab-btn" data-tab="downloadTab">Download</button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Direct 1-Click Push via GitHub API -->
+          <div class="sync-tab-panel active" id="pushTab">
+            <div class="sync-input-row">
+              <div class="sync-input-group">
+                <label for="ghRepoInput">Repository (owner/repo)</label>
+                <input type="text" id="ghRepoInput" class="sync-input" placeholder="e.g. ChingKheat/portfolios" value="ChingKheat/portfolios">
+              </div>
+              <div class="sync-input-group">
+                <label for="ghBranchInput">Branch</label>
+                <input type="text" id="ghBranchInput" class="sync-input" placeholder="main" value="main">
+              </div>
+            </div>
+
+            <div class="sync-input-group">
+              <label for="ghTokenInput" style="display: flex; justify-content: space-between;">
+                <span>Personal Access Token (repo scope)</span>
+                <a href="https://github.com/settings/tokens/new?scopes=repo&description=Project+Showcase+Dashboard" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">Generate Token ↗</a>
+              </label>
+              <input type="password" id="ghTokenInput" class="sync-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+            </div>
+
+            <p class="sync-note">
+              🔒 Your token is saved only in your local browser and connects securely to api.github.com to update your repository.
+            </p>
+
+            <button class="btn-push-gh" id="btnPushGhApi">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Push to GitHub (Live for Next Visitors)
+            </button>
+          </div>
+
+          <!-- Tab 2: Direct GitHub Web Editor -->
+          <div class="sync-tab-panel" id="githubWebTab">
+            <p class="sync-note" style="font-size: 0.82rem; line-height: 1.5;">
+              You can also edit <code>displayedProjectIds</code> directly on GitHub.com in your browser:
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <a href="https://github.com/ChingKheat/portfolios/edit/main/data/projects-data.js" id="ghDirectEditLink" target="_blank" rel="noopener noreferrer" class="action-btn secondary" style="flex: 1; text-align: center; justify-content: center;">
+                ✏️ Edit on GitHub ↗
+              </a>
+              <button class="action-btn secondary" id="copySelectedIdsBtn" title="Copy only selected project IDs">
+                📋 Copy Selected IDs
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 3: Download Updated File -->
+          <div class="sync-tab-panel" id="downloadTab">
+            <p class="sync-note" style="font-size: 0.82rem; line-height: 1.5;">
+              Download the updated file to replace locally in your project folder, then run <code>git push</code>:
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <button class="action-btn secondary" id="downloadDataJsBtn" style="flex: 1; justify-content: center;">
+                💾 Download projects-data.js
+              </button>
+              <button class="action-btn secondary" id="copyDataJsBtn" style="flex: 1; justify-content: center;">
+                📋 Copy Code to Clipboard
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer" style="padding: 16px 22px; justify-content: space-between;">
-        <button class="action-btn secondary" id="copyShareCuratedLinkBtn" title="Copy link displaying only these selected projects">
+        <button class="action-btn secondary" id="copyShareCuratedLinkBtn" title="Copy shareable link for others">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
           Copy Shareable Link
         </button>
 
         <button class="action-btn primary" id="saveCuratedBtn">
-          Save & Publish for All Visitors
+          Apply Preview
         </button>
       </div>
     </div>
