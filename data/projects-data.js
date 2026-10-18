@@ -1,6 +1,6 @@
 /**
  * Project Catalog Data Source
- * Edit displayedProjectIds below or in data/projects.json on GitHub to control which projects visitors see.
+ * Curated via Showcase Curator Portal
  */
 window.PROJECTS_DATA = {
   "hub": {
@@ -72,7 +72,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/SmashDash_CourtBooking",
-      "visible": true
+      "visible": false
     },
     {
       "id": "Malaysia-Travel-Apps",
@@ -101,7 +101,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/Malaysia-Travel-Apps",
-      "visible": true
+      "visible": false
     },
     {
       "id": "nuxt-ai-chatbot",
@@ -131,7 +131,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/nuxt-ai-chatbot",
-      "visible": true
+      "visible": false
     },
     {
       "id": "portfolio",
@@ -158,7 +158,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/portfolio",
-      "visible": true
+      "visible": false
     },
     {
       "id": "Java-OOPT",
@@ -186,7 +186,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/Java-OOPT",
-      "visible": true
+      "visible": false
     },
     {
       "id": "SmashDash",
@@ -213,7 +213,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/SmashDash",
-      "visible": true
+      "visible": false
     },
     {
       "id": "CDTest",
@@ -241,7 +241,7 @@ window.PROJECTS_DATA = {
       ],
       "demoUrl": "",
       "githubUrl": "https://github.com/ChingKheat/CDTest",
-      "visible": true
+      "visible": false
     }
   ],
   "milestones": [
@@ -270,14 +270,7 @@ window.PROJECTS_DATA = {
     "repository": "ChingKheat/portfolios",
     "branch": "main",
     "displayedProjectIds": [
-      "banana-dashboard",
-      "SmashDash_CourtBooking",
-      "Malaysia-Travel-Apps",
-      "nuxt-ai-chatbot",
-      "portfolio",
-      "Java-OOPT",
-      "SmashDash",
-      "CDTest"
+      "banana-dashboard"
     ]
   }
 };
