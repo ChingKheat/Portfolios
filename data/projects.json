@@ -1,0 +1,228 @@
+{
+  "profile": {
+    "login": "ChingKheat",
+    "name": "ChingKheat",
+    "handle": "@ChingKheat",
+    "avatar": "https://avatars.githubusercontent.com/u/159931544?v=4",
+    "bio": "Software developer & creator on GitHub building web apps, mobile solutions, and systems.",
+    "location": "Global / Remote",
+    "status": "Active GitHub Developer",
+    "publicRepos": 8,
+    "followers": 0,
+    "following": 0,
+    "githubUrl": "https://github.com/ChingKheat"
+  },
+  "projects": [
+    {
+      "id": "banana-dashboard",
+      "rawName": "banana-dashboard",
+      "title": "Banana Dashboard",
+      "tagline": "HTML Dashboard application hosted on GitHub",
+      "category": "Web & Full-Stack",
+      "status": "Active",
+      "featured": true,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #e34f26 0%, #f06529 100%)",
+      "summary": "Interactive web dashboard application developed using HTML5 and modern web practices.",
+      "fullDescription": "Banana Dashboard repository hosted on GitHub by @ChingKheat. Features responsive layout components and modern web interface structure.",
+      "keyFeatures": [
+        "Primary language: HTML",
+        "Clean responsive web layout",
+        "Hosted publicly on GitHub"
+      ],
+      "techStack": ["HTML", "CSS", "JavaScript"],
+      "githubUrl": "https://github.com/ChingKheat/banana-dashboard"
+    },
+    {
+      "id": "SmashDash_CourtBooking",
+      "rawName": "SmashDash_CourtBooking",
+      "title": "SmashDash Court Booking",
+      "tagline": "Mobile court booking application built with Dart & Flutter",
+      "category": "Mobile Apps",
+      "status": "Active",
+      "featured": true,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #02569B 0%, #0175C2 50%, #13B9FD 100%)",
+      "summary": "Mobile sports court reservation and schedule booking system designed with Dart.",
+      "fullDescription": "SmashDash Court Booking provides sports facility management, timetable scheduling, and user court reservations in an intuitive mobile interface.",
+      "keyFeatures": [
+        "Primary technology: Dart",
+        "Court availability tracking and reservation flow",
+        "Cross-platform mobile architecture"
+      ],
+      "techStack": ["Dart", "Flutter", "Mobile"],
+      "githubUrl": "https://github.com/ChingKheat/SmashDash_CourtBooking"
+    },
+    {
+      "id": "Malaysia-Travel-Apps",
+      "rawName": "Malaysia-Travel-Apps",
+      "title": "Malaysia Travel Apps",
+      "tagline": "Tourism and destination exploration mobile guide",
+      "category": "Mobile Apps",
+      "status": "Active",
+      "featured": true,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #02569B 0%, #0175C2 50%, #13B9FD 100%)",
+      "summary": "Mobile application guiding travelers through Malaysian attractions, landmarks, and travel routes.",
+      "fullDescription": "Built in Dart, Malaysia Travel Apps helps tourists and locals discover destinations, cultural highlights, and local travel guides across Malaysia.",
+      "keyFeatures": [
+        "Primary technology: Dart",
+        "Curated travel destinations and points of interest",
+        "Mobile-first responsive UI"
+      ],
+      "techStack": ["Dart", "Flutter", "Travel"],
+      "githubUrl": "https://github.com/ChingKheat/Malaysia-Travel-Apps"
+    },
+    {
+      "id": "nuxt-ai-chatbot",
+      "rawName": "nuxt-ai-chatbot",
+      "title": "Nuxt AI Chatbot",
+      "tagline": "Conversational AI chatbot application built with Nuxt & Vue",
+      "category": "Web & Full-Stack",
+      "status": "Active",
+      "featured": true,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #42b883 0%, #35495e 100%)",
+      "summary": "Vue/Nuxt powered intelligent chat interface with real-time streaming and AI model integration.",
+      "fullDescription": "Nuxt AI Chatbot explores modern conversational user interfaces, prompt handling, and reactive state management powered by Vue.",
+      "keyFeatures": [
+        "Primary framework: Vue / Nuxt",
+        "Real-time conversation thread UI",
+        "Modular AI service integration"
+      ],
+      "techStack": ["Vue", "Nuxt", "JavaScript", "AI"],
+      "githubUrl": "https://github.com/ChingKheat/nuxt-ai-chatbot"
+    },
+    {
+      "id": "portfolio",
+      "rawName": "portfolio",
+      "title": "Portfolio",
+      "tagline": "Personal portfolio and project showcase application",
+      "category": "AI & Data Science",
+      "status": "Active",
+      "featured": false,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #3776ab 0%, #ffd438 100%)",
+      "summary": "Python powered project showcase and portfolio repository.",
+      "fullDescription": "Custom portfolio codebase highlighting engineering projects, scripts, and applications.",
+      "keyFeatures": [
+        "Primary technology: Python",
+        "Showcase data formatting and structure"
+      ],
+      "techStack": ["Python"],
+      "githubUrl": "https://github.com/ChingKheat/portfolio"
+    },
+    {
+      "id": "Java-OOPT",
+      "rawName": "Java-OOPT",
+      "title": "Java OOPT",
+      "tagline": "Object-Oriented Programming and Design Principles in Java",
+      "category": "Backend & Systems",
+      "status": "Active",
+      "featured": false,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2024",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #5382a1 0%, #e76f00 100%)",
+      "summary": "Core Java implementations demonstrating object-oriented paradigms, patterns, and software architecture.",
+      "fullDescription": "Comprehensive Java project exploring inheritance, polymorphism, encapsulation, abstraction, and design patterns.",
+      "keyFeatures": [
+        "Primary language: Java",
+        "Object-Oriented Architecture examples",
+        "Clean class design and patterns"
+      ],
+      "techStack": ["Java", "OOP"],
+      "githubUrl": "https://github.com/ChingKheat/Java-OOPT"
+    },
+    {
+      "id": "SmashDash",
+      "rawName": "SmashDash",
+      "title": "SmashDash",
+      "tagline": "Sports booking and dashboard platform",
+      "category": "Software & Tools",
+      "status": "Active",
+      "featured": false,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)",
+      "summary": "SmashDash platform core repository for tournament and court coordination.",
+      "fullDescription": "Underlying system and dashboard for SmashDash platform services.",
+      "keyFeatures": [
+        "Platform architecture",
+        "Public GitHub repository"
+      ],
+      "techStack": ["General"],
+      "githubUrl": "https://github.com/ChingKheat/SmashDash"
+    },
+    {
+      "id": "CDTest",
+      "rawName": "CDTest",
+      "title": "CDTest",
+      "tagline": "Continuous Deployment and integration pipeline testing repository",
+      "category": "DevOps & Tools",
+      "status": "Active",
+      "featured": false,
+      "stars": 0,
+      "forks": 0,
+      "watchers": 0,
+      "year": "2026",
+      "metrics": "⭐ 0 stars • 🍴 0 forks",
+      "bannerGradient": "linear-gradient(135deg, #89e051 0%, #43841a 100%)",
+      "summary": "Continuous deployment pipeline testing and automated verification repository.",
+      "fullDescription": "Used for testing CI/CD workflows, build triggers, and deployment targets.",
+      "keyFeatures": [
+        "CI/CD testing ground",
+        "Automated deployment validation"
+      ],
+      "techStack": ["CI/CD", "DevOps"],
+      "githubUrl": "https://github.com/ChingKheat/CDTest"
+    }
+  ],
+  "milestones": [
+    {
+      "date": "Sep 2026",
+      "title": "Updated banana-dashboard",
+      "desc": "Pushed latest updates to banana-dashboard on branch main."
+    },
+    {
+      "date": "Aug 2026",
+      "title": "Updated CDTest",
+      "desc": "Triggered deployment test pipeline."
+    },
+    {
+      "date": "2026",
+      "title": "Built SmashDash Court Booking",
+      "desc": "Implemented court scheduling architecture in Dart."
+    },
+    {
+      "date": "2026",
+      "title": "Created Nuxt AI Chatbot",
+      "desc": "Developed streaming AI chat interface in Vue/Nuxt."
+    }
+  ]
+}

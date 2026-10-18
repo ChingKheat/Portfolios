@@ -1,33 +1,36 @@
-# Project Hub - Engineering Portfolio & Showcase Dashboard
+# Project Hub - Dynamic Live GitHub Project & Portfolio Dashboard
 
-A modern, high-performance static dashboard webpage for showcasing software projects, technical case studies, and engineering metrics. Built with pure HTML5, modern CSS3 (with CSS custom properties, glassmorphism, responsive grid), and vanilla JavaScript.
+A modern, high-performance static dashboard webpage that **dynamically loads real repositories, live metrics, and user profiles directly from the GitHub REST API**.
+
+**Zero hardcoded project data.** Every card, category, technology bar, and activity milestone is rendered live on the fly.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-production--ready-success.svg)
+![Data Source](https://img.shields.io/badge/data--source-GitHub%20REST%20API-success.svg)
 ![Zero Dependencies](https://img.shields.io/badge/dependencies-0%20(vanilla)-orange.svg)
 
 ---
 
 ## 🚀 Key Features
 
+- **Dynamic GitHub REST API Integration**:
+  - Automatically fetches live repositories via `https://api.github.com/users/{username}/repos`.
+  - Automatically fetches the user's avatar, bio, location, and stats via `https://api.github.com/users/{username}`.
+  - No build step or backend required; runs 100% in the browser.
+- **In-App Account Switcher**:
+  - Switch to any GitHub account (`ChingKheat`, `torvalds`, `vercel`, etc.) directly through the UI.
+- **One-Click Live Sync**:
+  - Top-navbar **Sync GitHub** button refreshes live data immediately with spinning feedback and toast notifications.
+- **Intelligent Client-Side Caching**:
+  - Caches GitHub API responses in `localStorage` with a 15-minute TTL to stay well within GitHub's unauthenticated 60 requests/hour rate limit.
+- **Offline / Local Fallback (`data/projects.json`)**:
+  - If GitHub's API is unreachable or rate limited, gracefully falls back to `data/projects.json`.
 - **Dashboard Layout & Design System**:
-  - **Dark / Light Theme Toggle**: Seamless transition with local storage persistence.
-  - **Sidebar Navigation**: User profile avatar, availability status with animated pulse dot, quick jump anchors, and social links.
-  - **KPI Metric Stat Cards**: Dynamic project counter, featured projects, community stars, and unique technology count.
-- **Interactive Project Showcase**:
-  - **Category Tabs**: Filter instantaneously by *All*, *AI & Machine Learning*, *Full-Stack*, *Cloud & DevOps*, *Mobile Apps*, *Open Source & Tools*.
-  - **Real-Time Live Search**: Searches titles, taglines, summaries, and tech stack tags on the fly (press `/` anywhere to focus search).
-  - **Status & Sorting Controls**: Filter by *Featured Only*, *Live / Production*, *Beta*, *In Progress*, or sort by *Featured*, *Stars*, *Newest*, or *Alphabetical*.
-  - **Grid & List View Switcher**: Switch between multi-column cards and detailed horizontal list views with local storage persistence.
-- **Deep-Dive Modal Inspector**:
-  - Clicking any card or the "Quick View" button opens an architecture breakdown modal with technical challenges, key capabilities list, and complete tech stack tags.
-- **Analytics & Milestone Timeline**:
-  - Automated tech stack distribution bars dynamically calculated from project repositories.
-  - Release timeline & milestone roadmap widget.
-- **Connect / Contact Modal**:
-  - Quick-connect options for GitHub, LinkedIn, Twitter/X, and one-click copy email button with toast notification.
-- **100% Zero Build Step**:
-  - Works out of the box. No `npm install`, webpack, or bundler needed.
+  - Dark / Light mode toggle with persistent preferences.
+  - Real-time search (`/` shortcut), category filters, status filters, and sorting.
+  - Grid View & List View switcher.
+  - Repository inspector modal with Git clone command copier, license, branch, and live links.
+  - Dynamic language breakdown progress bars calculated directly from your repositories.
+  - Dynamic milestone activity timeline derived from actual commit/push dates.
 
 ---
 
@@ -37,12 +40,14 @@ A modern, high-performance static dashboard webpage for showcasing software proj
 portfolios/
 ├── index.html            # Main dashboard shell & markup
 ├── css/
-│   └── styles.css        # Design system, CSS tokens, glassmorphism, responsive styles
+│   └── styles.css        # Glassmorphic styles, responsive grid, skeletons, themes
 ├── js/
-│   ├── projects.js       # Central data file for projects, profile, and milestones
-│   └── app.js            # Reactive application logic (filters, views, modal, theme)
-├── assets/               # Folder for custom images, avatars, or logos
-└── README.md             # Documentation & deployment guide
+│   ├── config.js         # Configuration (default username, cache duration, token)
+│   ├── github-api.js     # Live GitHub API client, caching & data normalizer
+│   └── app.js            # UI state, filters, search, views, modal, theme
+├── data/
+│   └── projects.json     # Optional offline / fallback JSON data
+└── README.md             # Documentation
 ```
 
 ---
@@ -50,81 +55,48 @@ portfolios/
 ## ⚡ Quick Start / Local Preview
 
 ### Option 1: Direct File Open
-Simply double-click `index.html` in your file explorer to open it in any modern browser (Chrome, Edge, Firefox, Safari).
+Simply double-click `index.html` in your file explorer to launch the dashboard in any browser.
 
-### Option 2: Local Python Server (Recommended)
-Run the following in the project directory:
+### Option 2: Local Server (Recommended)
 ```bash
 python -m http.server 3000
 ```
-Then visit `http://localhost:3000` in your web browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🛠 Customization Guide
+## ⚙️ Configuration (`js/config.js`)
 
-### 1. Update Profile & Social Links
-Open `js/projects.js` and edit the `PROFILE_DATA` object:
+You can change the default username and settings in [**`js/config.js`**](file:///c:/Users/ching/OneDrive/Dokumen/GitHub%20Projects/portfolios/js/config.js):
+
 ```javascript
-const PROFILE_DATA = {
-  name: "Your Name",
-  handle: "@yourhandle",
-  title: "Your Professional Title",
-  bio: "Your personal bio / summary",
-  status: "Available for select opportunities",
-  socials: {
-    github: "https://github.com/yourusername",
-    linkedin: "https://linkedin.com/in/yourusername",
-    twitter: "https://twitter.com/yourusername",
-    email: "your.email@example.com"
-  }
+const APP_CONFIG = {
+  // Default GitHub username to fetch dynamically
+  defaultGithubUsername: "ChingKheat",
+
+  // Cache duration in minutes
+  cacheDurationMinutes: 15,
+
+  // Optional: GitHub Personal Access Token (for 5,000 req/hour limit)
+  githubToken: "",
+
+  // Fallback JSON path if GitHub API is offline
+  fallbackJsonUrl: "data/projects.json",
+
+  // Repository sort order ('updated', 'stars', 'pushed', 'full_name')
+  defaultSort: "updated"
 };
-```
-
-### 2. Add or Edit Projects
-Add your project objects to the `PROJECTS_DATA` array in `js/projects.js`:
-```javascript
-{
-  id: "my-custom-project",
-  title: "My Custom Project",
-  tagline: "Short one-line impact tagline",
-  category: "Full-Stack", // or "AI & Machine Learning", "Mobile Apps", etc.
-  status: "Live",         // "Live", "Beta", "In Progress", or "Archived"
-  featured: true,
-  stars: 120,
-  year: "2026",
-  metrics: "99.9% uptime • 5k active users",
-  bannerGradient: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-  summary: "Brief project summary displayed on the card.",
-  fullDescription: "Detailed overview shown in the modal.",
-  challenges: "Technical bottleneck or engineering challenge solved.",
-  keyFeatures: [
-    "Feature item 1",
-    "Feature item 2"
-  ],
-  techStack: ["React", "TypeScript", "Node.js", "Docker"],
-  demoUrl: "https://your-demo-url.com",
-  githubUrl: "https://github.com/yourusername/repo"
-}
 ```
 
 ---
 
 ## 🌐 Free Static Hosting & Deployment
 
-### GitHub Pages
-1. Initialize a git repository:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial portfolio dashboard commit"
-   ```
-2. Push to your GitHub repository:
-   ```bash
-   git remote add origin https://github.com/<your-username>/<repo-name>.git
-   git push -u origin main
-   ```
-3. In GitHub repo settings, navigate to **Pages** > **Source** > Select `main` branch `/ (root)` > Click **Save**.
+Deploy directly to **GitHub Pages**, **Vercel**, or **Netlify**:
 
-### Vercel / Netlify
-- Drag and drop this folder into [Netlify Drop](https://app.netlify.com/drop) or deploy directly with the [Vercel CLI](https://vercel.com). No build command required.
+```bash
+git add .
+git commit -m "feat: dynamic GitHub API project dashboard"
+git push -u origin main
+```
+In your GitHub repository settings, enable **GitHub Pages** from the `main` branch.
