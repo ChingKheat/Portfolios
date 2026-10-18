@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Project Hub - Dynamic Live GitHub Project & Portfolio Dashboard">
-  <title>Project Hub | Live Developer & Repository Showcase</title>
+  <meta name="description" content="Project Showcase Hub - Interactive Engineering and Application Portfolio">
+  <title>Project Showcase Hub | Engineering & Applications Dashboard</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,29 +26,27 @@
           </div>
           <div class="logo-text">
             <h1>Project Hub</h1>
-            <span>Live Showcase</span>
+            <span>Engineering Showcase</span>
           </div>
         </div>
         <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Close menu">✕</button>
       </div>
 
       <div class="sidebar-content">
-        <!-- Dynamic Profile Widget -->
+        <!-- Hub Overview Card -->
         <div class="sidebar-profile">
           <div class="profile-top">
-            <div class="profile-avatar" id="profileAvatar">CK</div>
+            <div class="profile-avatar">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            </div>
             <div class="profile-info">
-              <div class="profile-name" id="profileName">ChingKheat</div>
-              <div class="profile-handle" id="profileHandle">@ChingKheat</div>
+              <div class="profile-name" id="hubSubtitle">Engineering Lab</div>
+              <div class="profile-handle">Interactive Showcase</div>
             </div>
           </div>
-          <div class="profile-badge" id="profileStatus">
-            <span class="pulse-dot"></span> Active Developer
+          <div class="profile-badge">
+            <span class="pulse-dot"></span> Live Deployments
           </div>
-          <button class="user-switch-btn btn-switch-user" style="margin-top: 6px; width: 100%; justify-content: center;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Switch GitHub Account
-          </button>
         </div>
 
         <!-- Navigation Section -->
@@ -59,7 +57,7 @@
               <a href="#showcase">
                 <span class="nav-link-left">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-                  All Repositories
+                  All Projects
                 </span>
                 <span class="nav-badge" id="sidebarProjectCount">...</span>
               </a>
@@ -68,7 +66,7 @@
               <a href="#analytics">
                 <span class="nav-link-left">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                  Language Analytics
+                  Tech Distribution
                 </span>
               </a>
             </li>
@@ -76,29 +74,29 @@
               <a href="#milestones">
                 <span class="nav-link-left">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  Latest Activity
+                  Release Timeline
                 </span>
               </a>
             </li>
           </ul>
         </div>
 
-        <!-- Data Source Live Status Card -->
+        <!-- System Status Summary -->
         <div style="background: var(--bg-tertiary); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <strong style="color: var(--text-primary);">⚡ Live Data</strong>
-            <span class="data-source-badge">GitHub API</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <strong style="color: var(--text-primary);">🎯 Platform Status</strong>
+            <span style="color: var(--status-live); font-size: 0.72rem; font-weight: 700;">100% Uptime</span>
           </div>
-          Repositories and profile details are dynamically fetched in real time.
+          All applications, repositories, and mobile systems operational.
         </div>
       </div>
 
       <div class="sidebar-footer">
         <div class="social-links">
-          <a href="https://github.com/ChingKheat" id="sidebarGithubLink" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub Profile">
+          <a href="https://github.com/ChingKheat" id="hubGithubLink" target="_blank" rel="noopener noreferrer" class="social-btn" title="GitHub Codebases">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
           </a>
-          <a href="mailto:chingkheat@gmail.com" class="social-btn btn-open-contact" title="Email">
+          <a href="mailto:chingkheat@gmail.com" class="social-btn btn-open-contact" title="Contact Email">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           </a>
         </div>
@@ -121,27 +119,21 @@
             <span class="search-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </span>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search repositories, languages, topics..." autocomplete="off">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search projects, technologies, features..." autocomplete="off">
             <span class="search-shortcut">/</span>
           </div>
         </div>
 
         <div class="navbar-right">
-          <!-- Live Sync Button -->
-          <button class="btn-sync" id="syncDataBtn" title="Sync latest data live from GitHub API">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            Sync GitHub
-          </button>
-
           <!-- Theme Toggle -->
           <button class="icon-button" id="themeToggleBtn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
             <!-- Dynamic icon inserted by js -->
           </button>
 
-          <!-- Get in Touch -->
+          <!-- Contact / Connect Button -->
           <button class="action-btn primary btn-open-contact">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            Get In Touch
+            Contact
           </button>
         </div>
       </header>
@@ -152,10 +144,10 @@
         <!-- Hero Overview Banner with Dynamic KPI Stat Cards -->
         <section class="hero-banner">
           <div class="hero-intro">
-            <span class="hero-tag" id="heroUserTag">@ChingKheat • GitHub Portfolio</span>
-            <h2 class="hero-title">Live Repository & Project Showcase</h2>
-            <p class="hero-description" id="heroDescription">
-              Connecting directly to the GitHub REST API to showcase live repositories, real commit metrics, active languages, and open-source contributions.
+            <span class="hero-tag" id="hubBadge">Active Deployments</span>
+            <h2 class="hero-title" id="hubTitle">Project Showcase Hub</h2>
+            <p class="hero-description" id="hubDescription">
+              An interactive showcase of live applications, mobile systems, AI chatbot interfaces, and developer utilities.
             </p>
           </div>
 
@@ -165,7 +157,7 @@
               <div class="metric-icon-wrap">🚀</div>
               <div class="metric-info">
                 <div class="metric-value" id="statTotalProjects">0</div>
-                <div class="metric-label">Public Repos</div>
+                <div class="metric-label">Showcased Projects</div>
               </div>
             </div>
 
@@ -173,15 +165,7 @@
               <div class="metric-icon-wrap">⭐</div>
               <div class="metric-info">
                 <div class="metric-value" id="statFeaturedProjects">0</div>
-                <div class="metric-label">Featured Repos</div>
-              </div>
-            </div>
-
-            <div class="metric-card">
-              <div class="metric-icon-wrap">📈</div>
-              <div class="metric-info">
-                <div class="metric-value" id="statTotalStars">0</div>
-                <div class="metric-label">Total Stars</div>
+                <div class="metric-label">Flagship Deployments</div>
               </div>
             </div>
 
@@ -189,7 +173,15 @@
               <div class="metric-icon-wrap">⚡</div>
               <div class="metric-info">
                 <div class="metric-value" id="statTotalTech">0</div>
-                <div class="metric-label">Active Languages</div>
+                <div class="metric-label">Core Technologies</div>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-wrap">📦</div>
+              <div class="metric-info">
+                <div class="metric-value" id="statTotalCodebases">0</div>
+                <div class="metric-label">Open Repositories</div>
               </div>
             </div>
           </div>
@@ -199,26 +191,26 @@
         <section class="showcase-header" id="showcase">
           <div class="showcase-title-row">
             <h3 class="section-heading">
-              Repositories
+              Project Catalog
               <span class="section-count-badge" id="projectCountBadge">Loading...</span>
             </h3>
 
             <div class="controls-right">
               <!-- Status Filter Dropdown -->
-              <select id="statusSelect" class="select-control" aria-label="Filter by repository status">
+              <select id="statusSelect" class="select-control" aria-label="Filter by project status">
                 <option value="all">All Statuses</option>
                 <option value="featured">Featured Only</option>
-                <option value="active">Active Repos</option>
-                <option value="live">Live Demos</option>
-                <option value="archived">Archived</option>
+                <option value="production">Production</option>
+                <option value="active">Active</option>
+                <option value="beta">Beta</option>
               </select>
 
               <!-- Sorting Dropdown -->
-              <select id="sortSelect" class="select-control" aria-label="Sort repositories">
+              <select id="sortSelect" class="select-control" aria-label="Sort projects">
                 <option value="featured">Sort: Featured First</option>
-                <option value="stars">Sort: Most Stars</option>
-                <option value="newest">Sort: Recently Pushed</option>
+                <option value="newest">Sort: Recently Updated</option>
                 <option value="title">Sort: Alphabetical</option>
+                <option value="category">Sort: By Category</option>
               </select>
 
               <!-- View Switcher -->
@@ -244,28 +236,28 @@
 
         <!-- Analytics & Milestones Dual Grid -->
         <section class="dashboard-grid-dual">
-          <!-- Real Tech Stack Distribution -->
+          <!-- Technology Distribution Breakdown -->
           <div class="widget-card" id="analytics">
             <div class="widget-header">
               <h4 class="widget-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                Language & Technology Breakdown
+                Technology Stack Breakdown
               </h4>
-              <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Calculated from repositories</span>
+              <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Distribution across projects</span>
             </div>
             <div class="skills-bars" id="skillsContainer">
               <!-- Dynamically rendered -->
             </div>
           </div>
 
-          <!-- Real Activity Timeline -->
+          <!-- Release Timeline & Milestones -->
           <div class="widget-card" id="milestones">
             <div class="widget-header">
               <h4 class="widget-title">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                Latest Commit & Push Activity
+                Release Milestones & Updates
               </h4>
-              <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Real-time timestamps</span>
+              <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Recent highlights</span>
             </div>
             <div class="timeline-list" id="milestonesContainer">
               <!-- Dynamically rendered -->
@@ -284,51 +276,26 @@
     </div>
   </div>
 
-  <!-- Switch GitHub User Modal -->
-  <div class="modal-overlay" id="userModal" role="dialog" aria-modal="true" aria-labelledby="userModalTitle">
-    <div class="modal-box" style="max-width: 460px;">
-      <div class="modal-banner" style="height: 100px; background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);">
-        <button class="modal-close-btn" id="userModalCloseBtn" aria-label="Close dialog">✕</button>
-        <div class="modal-banner-content">
-          <h3 id="userModalTitle" style="color: #ffffff; font-size: 1.3rem; font-weight: 800;">Switch GitHub User</h3>
-          <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem;">Display live repositories from any GitHub account</p>
-        </div>
-      </div>
-
-      <div class="modal-body" style="padding: 24px;">
-        <form id="userSwitchForm" style="display: flex; flex-direction: column; gap: 16px;">
-          <div>
-            <label for="newUsernameInput" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">GitHub Username</label>
-            <input type="text" id="newUsernameInput" class="search-input" style="padding-left: 14px;" placeholder="e.g. ChingKheat, torvalds, vercel" required>
-          </div>
-          <button type="submit" class="action-btn primary" style="width: 100%; justify-content: center; padding: 10px;">
-            Fetch Live Repositories
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contact & Connect Modal -->
+  <!-- Contact Modal -->
   <div class="modal-overlay" id="contactModal" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
-    <div class="modal-box" style="max-width: 580px;">
+    <div class="modal-box" style="max-width: 540px;">
       <div class="modal-banner" style="background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);">
         <button class="modal-close-btn" id="contactCloseBtn" aria-label="Close dialog">✕</button>
         <div class="modal-banner-content">
-          <h3 id="contactTitle" style="color: #ffffff; font-size: 1.4rem; font-weight: 800;">Let's Connect</h3>
-          <p style="color: rgba(255,255,255,0.85); font-size: 0.88rem;">Open for engineering opportunities, open source, and collaborations.</p>
+          <h3 id="contactTitle" style="color: #ffffff; font-size: 1.4rem; font-weight: 800;">Get in Touch</h3>
+          <p style="color: rgba(255,255,255,0.85); font-size: 0.88rem;">Open for engineering collaborations, questions, and inquiries.</p>
         </div>
       </div>
 
       <div class="modal-body">
         <div class="contact-grid">
-          <a href="https://github.com/ChingKheat" id="modalContactGh" target="_blank" rel="noopener noreferrer" class="contact-card-btn">
+          <a href="https://github.com/ChingKheat" target="_blank" rel="noopener noreferrer" class="contact-card-btn">
             <div class="contact-card-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             </div>
             <div class="contact-card-info">
-              <h4>GitHub Profile</h4>
-              <p>Explore source code & repos</p>
+              <h4>GitHub Codebases</h4>
+              <p>Explore source repositories</p>
             </div>
           </a>
 
@@ -337,7 +304,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             </div>
             <div class="contact-card-info">
-              <h4>Email</h4>
+              <h4>Copy Email</h4>
               <p>chingkheat@gmail.com</p>
             </div>
           </button>
@@ -349,9 +316,7 @@
   <!-- Floating Toast Notifications Container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Dynamic Scripts (No hardcoded data) -->
-  <script src="js/config.js"></script>
-  <script src="js/github-api.js"></script>
+  <!-- Dynamic Application Engine (Loads data/projects.json) -->
   <script src="js/app.js"></script>
 </body>
 </html>
