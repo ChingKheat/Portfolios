@@ -191,25 +191,24 @@
             </div>
             <div>
               <div class="dock-text-title" id="dock-summary">Ready to publish changes</div>
-              <div class="dock-text-sub">Apply live on this browser, download updated data file, or share custom link.</div>
+              <div class="dock-text-sub">Automatically updates GitHub so all public visitors see your selection immediately.</div>
             </div>
           </div>
 
           <div class="dock-buttons">
-            <button id="save-local-btn" class="btn btn-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
+            <button id="auto-publish-btn" class="btn btn-primary" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); font-weight: 700; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
-              <span>Apply Live Now</span>
+              <span id="auto-publish-text">Apply & Publish Live to Public</span>
             </button>
 
-            <button id="export-file-btn" class="btn btn-secondary" title="Download updated projects-data.js to permanently publish for everyone on GitHub Pages">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
+            <button id="open-token-modal-btn" class="btn btn-secondary" title="Configure GitHub automatic sync token">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
               </svg>
-              <span>Download projects-data.js</span>
+              <span id="token-status-text">GitHub Token</span>
             </button>
 
             <button id="copy-link-btn" class="btn btn-secondary" title="Copy shareable link showing this exact curated selection">
@@ -217,7 +216,16 @@
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
               </svg>
-              <span>Copy Curated Link</span>
+              <span>Share Link</span>
+            </button>
+
+            <button id="export-file-btn" class="btn btn-secondary" title="Download updated projects-data.js file manually">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download File</span>
             </button>
           </div>
         </div>
@@ -225,6 +233,39 @@
       </section>
 
     </main>
+  </div>
+
+  <!-- GitHub Token Setup Modal -->
+  <div id="token-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card" style="max-width: 520px;">
+      <div class="modal-header-banner" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 1.75rem;">
+        <button id="close-token-modal" class="modal-close">&times;</button>
+        <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.4rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <h3 style="font-size: 1.25rem; font-weight: 800; color:#fff;">Automatic GitHub Sync</h3>
+        </div>
+        <p style="font-size: 0.85rem; opacity: 0.85; color:#cbd5e1;">Connect your GitHub Token once so every time you select projects, it updates live for the public automatically.</p>
+      </div>
+      <div class="modal-body" style="padding: 1.75rem;">
+        <div style="background: var(--bg-surface-elevated); padding: 1rem 1.15rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1.25rem; font-size: 0.85rem; line-height: 1.55;">
+          <strong>Step 1:</strong> Create a Personal Access Token on GitHub:<br>
+          👉 <a href="https://github.com/settings/tokens/new?scopes=repo&description=Portfolios+Curator+Sync" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary); font-weight: 700; text-decoration: underline;">Click here to generate a Token with 'repo' scope</a>.<br>
+          <span style="color: var(--text-muted); font-size: 0.8rem;">(Scroll down and click the green <strong>"Generate token"</strong> button, then copy the key).</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem;">
+          <label for="gh-token-input" style="font-size: 0.85rem; font-weight: 700;">Step 2: Paste your GitHub Token below:</label>
+          <input type="password" id="gh-token-input" class="passkey-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx..." autocomplete="off">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">🔒 Stored only in your local browser. Never shared or sent to any third party.</span>
+        </div>
+        <div id="token-feedback" class="gate-error" style="margin-bottom: 0.75rem;"></div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" id="cancel-token-btn" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="save-token-btn" class="btn btn-primary">Save Token & Enable Auto-Sync</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Change Passkey Modal -->

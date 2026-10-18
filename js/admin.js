@@ -1,6 +1,7 @@
 /**
  * Showcase Curator Portal Script
- * Handles authentication gate, project selection, visibility persistence, file export, and shareable links.
+ * Handles authentication gate, project selection, visibility persistence,
+ * 1-click automatic GitHub synchronization, file export, and shareable links.
  */
 
 (function () {
@@ -11,6 +12,11 @@
   const STORAGE_KEY_AUTH = 'curator_auth_session';
   const STORAGE_KEY_CURATED_IDS = 'curated_project_ids';
   const STORAGE_KEY_THEME = 'hub_theme';
+  const STORAGE_KEY_GH_TOKEN = 'curator_gh_token';
+
+  const GITHUB_REPO = 'ChingKheat/Portfolios';
+  const GITHUB_BRANCH = 'main';
+  const GITHUB_FILE_PATH = 'data/projects-data.js';
 
   // --- State ---
   const state = {
@@ -19,7 +25,8 @@
     selectedIds: new Set(),
     activeFilter: 'all', // 'all' | 'visible' | 'hidden'
     searchQuery: '',
-    theme: localStorage.getItem(STORAGE_KEY_THEME) || 'dark'
+    theme: localStorage.getItem(STORAGE_KEY_THEME) || 'dark',
+    isSyncing: false
   };
 
   // --- DOM Elements ---
@@ -43,6 +50,16 @@
     newPasskeyInput: document.getElementById('new-passkey'),
     passkeyFeedback: document.getElementById('passkey-change-feedback'),
 
+    // GitHub Token Modal
+    openTokenModalBtn: document.getElementById('open-token-modal-btn'),
+    tokenStatusText: document.getElementById('token-status-text'),
+    tokenModal: document.getElementById('token-modal'),
+    closeTokenModal: document.getElementById('close-token-modal'),
+    cancelTokenBtn: document.getElementById('cancel-token-btn'),
+    saveTokenBtn: document.getElementById('save-token-btn'),
+    ghTokenInput: document.getElementById('gh-token-input'),
+    tokenFeedback: document.getElementById('token-feedback'),
+
     // KPI & Toolbar
     kpiSelected: document.getElementById('kpi-selected-count'),
     kpiHidden: document.getElementById('kpi-hidden-count'),
@@ -55,7 +72,8 @@
 
     // Dock & Actions
     dockSummary: document.getElementById('dock-summary'),
-    saveLocalBtn: document.getElementById('save-local-btn'),
+    autoPublishBtn: document.getElementById('auto-publish-btn'),
+    autoPublishText: document.getElementById('auto-publish-text'),
     exportFileBtn: document.getElementById('export-file-btn'),
     copyLinkBtn: document.getElementById('copy-link-btn'),
     themeToggle: document.getElementById('theme-toggle'),
@@ -66,6 +84,7 @@
   // --- Initialization ---
   function init() {
     applyTheme(state.theme);
+    updateTokenStatusUI();
     checkAuthStatus();
     setupEventListeners();
   }
@@ -116,6 +135,17 @@
     elements.logoutBtn.classList.add('hidden');
     elements.passkeyInput.value = '';
     elements.gateError.style.display = 'none';
+  }
+
+  // --- GitHub Token Status ---
+  function updateTokenStatusUI() {
+    const token = localStorage.getItem(STORAGE_KEY_GH_TOKEN);
+    if (elements.tokenStatusText) {
+      elements.tokenStatusText.textContent = token ? '✓ Token Connected' : 'Connect Token';
+    }
+    if (elements.openTokenModalBtn) {
+      elements.openTokenModalBtn.classList.toggle('token-connected', !!token);
+    }
   }
 
   // --- Load Data Source & Selection ---
@@ -284,40 +314,150 @@
     showToast('All projects deselected (hidden).');
   }
 
-  // --- Save Locally ---
-  function saveToLocalStorage() {
-    const idsArray = Array.from(state.selectedIds);
-    localStorage.setItem(STORAGE_KEY_CURATED_IDS, JSON.stringify(idsArray));
-    showToast(`✓ Saved! Public dashboard will now display these ${idsArray.length} projects.`);
-  }
-
-  // --- Export Updated projects-data.js File ---
-  function exportUpdatedDataFile() {
+  // --- Generate Updated Code String ---
+  function generateUpdatedDataContent() {
     const rawData = window.PROJECTS_DATA;
-    if (!rawData) {
-      showToast('Error: Source data not found.', true);
-      return;
-    }
+    if (!rawData) return null;
 
-    // Clone and update
-    const updatedData = JSON.parse(JSON.stringify(rawData));
+    const updated = JSON.parse(JSON.stringify(rawData));
     
-    // Update visible property on each project
-    if (Array.isArray(updatedData.projects)) {
-      updatedData.projects.forEach(p => {
+    // Set visible property on all projects
+    if (Array.isArray(updated.projects)) {
+      updated.projects.forEach(p => {
         p.visible = state.selectedIds.has(p.id);
       });
     }
 
     // Update showcase.displayedProjectIds
-    if (!updatedData.showcase) updatedData.showcase = {};
-    updatedData.showcase.displayedProjectIds = Array.from(state.selectedIds);
+    if (!updated.showcase) updated.showcase = {};
+    updated.showcase.displayedProjectIds = Array.from(state.selectedIds);
 
-    // Format JS file content
-    const fileContent = `/**\n * Project Catalog Data Source\n * Curated via Showcase Curator Portal\n */\nwindow.PROJECTS_DATA = ${JSON.stringify(updatedData, null, 2)};\n`;
+    const jsCode = `/**\n * Project Catalog Data Source\n * Curated via Showcase Curator Portal\n */\nwindow.PROJECTS_DATA = ${JSON.stringify(updated, null, 2)};\n`;
 
-    // Download trigger
-    const blob = new Blob([fileContent], { type: 'application/javascript;charset=utf-8' });
+    return { updated, jsCode };
+  }
+
+  // --- UTF-8 Base64 Encoder ---
+  function utf8ToBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
+  // --- Automatic 1-Click Sync to GitHub ---
+  async function autoPublishToGitHub() {
+    if (state.isSyncing) return;
+
+    const token = localStorage.getItem(STORAGE_KEY_GH_TOKEN);
+    if (!token) {
+      // Prompt user to enter their GitHub token
+      elements.tokenFeedback.style.display = 'none';
+      elements.ghTokenInput.value = '';
+      elements.tokenModal.classList.remove('hidden');
+      return;
+    }
+
+    const dataPackage = generateUpdatedDataContent();
+    if (!dataPackage) {
+      showToast('Error: Unable to generate project data.', true);
+      return;
+    }
+
+    state.isSyncing = true;
+    const originalText = elements.autoPublishText.textContent;
+    elements.autoPublishText.textContent = 'Syncing to GitHub...';
+    elements.autoPublishBtn.disabled = true;
+
+    // Save locally immediately
+    localStorage.setItem(STORAGE_KEY_CURATED_IDS, JSON.stringify(Array.from(state.selectedIds)));
+
+    try {
+      const authHeader = token.startsWith('Bearer ') || token.startsWith('token ')
+        ? token
+        : (token.startsWith('github_pat_') ? `Bearer ${token}` : `token ${token}`);
+
+      const fileUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?ref=${GITHUB_BRANCH}`;
+
+      // 1. Fetch current file SHA
+      let currentSha = null;
+      try {
+        const checkRes = await fetch(fileUrl, {
+          headers: {
+            'Authorization': authHeader,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (checkRes.status === 401) {
+          throw new Error('UNAUTHORIZED');
+        }
+
+        if (checkRes.ok) {
+          const fileMeta = await checkRes.json();
+          currentSha = fileMeta.sha;
+        }
+      } catch (err) {
+        if (err.message === 'UNAUTHORIZED') throw err;
+        console.warn('Could not fetch existing SHA, attempting direct create/update:', err);
+      }
+
+      // 2. Send PUT commit to GitHub API
+      const commitBody = {
+        message: `chore: update displayed projects showcase (${state.selectedIds.size} visible)`,
+        content: utf8ToBase64(dataPackage.jsCode),
+        branch: GITHUB_BRANCH
+      };
+      if (currentSha) {
+        commitBody.sha = currentSha;
+      }
+
+      const putRes = await fetch(fileUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': authHeader,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(commitBody)
+      });
+
+      if (putRes.status === 401) {
+        throw new Error('UNAUTHORIZED');
+      }
+
+      if (!putRes.ok) {
+        const errorJson = await putRes.json().catch(() => ({}));
+        throw new Error(errorJson.message || `HTTP ${putRes.status}`);
+      }
+
+      showToast(`🎉 Success! Published to GitHub. Live for all visitors in ~30 seconds!`);
+
+    } catch (err) {
+      console.error('GitHub Sync Error:', err);
+      if (err.message === 'UNAUTHORIZED') {
+        elements.tokenFeedback.textContent = 'GitHub Token is invalid or expired. Please re-enter a valid token.';
+        elements.tokenFeedback.style.display = 'block';
+        elements.tokenModal.classList.remove('hidden');
+      } else {
+        showToast(`Sync failed: ${err.message}`, true);
+      }
+    } finally {
+      state.isSyncing = false;
+      elements.autoPublishText.textContent = originalText;
+      elements.autoPublishBtn.disabled = false;
+    }
+  }
+
+  // --- Manual Export Fallback ---
+  function exportUpdatedDataFile() {
+    const dataPackage = generateUpdatedDataContent();
+    if (!dataPackage) return;
+
+    const blob = new Blob([dataPackage.jsCode], { type: 'application/javascript;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -327,10 +467,8 @@
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    // Also persist locally
-    saveToLocalStorage();
-
-    showToast('✓ File downloaded! Place in data/ folder & push to GitHub for permanent visitor sync.');
+    localStorage.setItem(STORAGE_KEY_CURATED_IDS, JSON.stringify(Array.from(state.selectedIds)));
+    showToast('✓ File downloaded! You can push it to GitHub manually.');
   }
 
   // --- Copy Shareable Curated Link ---
@@ -355,7 +493,7 @@
     clearTimeout(elements.toast._timer);
     elements.toast._timer = setTimeout(() => {
       elements.toast.classList.remove('show');
-    }, 4000);
+    }, 4500);
   }
 
   // --- Theme Handling ---
@@ -436,13 +574,54 @@
       });
     }
 
-    // Actions dock
-    if (elements.saveLocalBtn) elements.saveLocalBtn.addEventListener('click', saveToLocalStorage);
+    // Auto-Publish Live to Public button
+    if (elements.autoPublishBtn) {
+      elements.autoPublishBtn.addEventListener('click', autoPublishToGitHub);
+    }
+
+    // Fallback file export & share link
     if (elements.exportFileBtn) elements.exportFileBtn.addEventListener('click', exportUpdatedDataFile);
     if (elements.copyLinkBtn) elements.copyLinkBtn.addEventListener('click', copyCuratedLink);
 
     // Theme Toggle
     if (elements.themeToggle) elements.themeToggle.addEventListener('click', toggleTheme);
+
+    // GitHub Token Modal Handlers
+    if (elements.openTokenModalBtn) {
+      elements.openTokenModalBtn.addEventListener('click', () => {
+        elements.ghTokenInput.value = localStorage.getItem(STORAGE_KEY_GH_TOKEN) || '';
+        elements.tokenFeedback.style.display = 'none';
+        elements.tokenModal.classList.remove('hidden');
+      });
+    }
+
+    if (elements.closeTokenModal) {
+      elements.closeTokenModal.addEventListener('click', () => {
+        elements.tokenModal.classList.add('hidden');
+      });
+    }
+
+    if (elements.cancelTokenBtn) {
+      elements.cancelTokenBtn.addEventListener('click', () => {
+        elements.tokenModal.classList.add('hidden');
+      });
+    }
+
+    if (elements.saveTokenBtn) {
+      elements.saveTokenBtn.addEventListener('click', () => {
+        const token = elements.ghTokenInput.value.trim();
+        if (!token) {
+          elements.tokenFeedback.textContent = 'Please paste a valid GitHub token.';
+          elements.tokenFeedback.style.display = 'block';
+          return;
+        }
+
+        localStorage.setItem(STORAGE_KEY_GH_TOKEN, token);
+        elements.tokenModal.classList.add('hidden');
+        updateTokenStatusUI();
+        showToast('✓ GitHub Token connected! Auto-sync is ready.');
+      });
+    }
 
     // Passkey Modal
     if (elements.changePasskeyBtn) {
